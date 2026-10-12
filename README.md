@@ -58,8 +58,12 @@ docker compose up --build
 
 - **Pre-commit hook.** [Husky](https://typicode.github.io/husky/) runs
   [lint-staged](https://github.com/lint-staged/lint-staged) on staged files: ESLint
-  (per-workspace flat config) on TS/JS and Prettier on JSON/Markdown/YAML. Installed
-  automatically via the `prepare` script on `npm install`; skips on CI (`is-ci`).
+  (per-workspace flat config) on TS/JS and Prettier on JSON/Markdown/YAML.
+- **Pre-push hook.** Running `git push` executes `npm run check`
+  (lint + typecheck + unit tests) locally before the push leaves your machine, so
+  obvious breakages are caught before CI.
+- Hooks are installed automatically via the `prepare` script on `npm install` and
+  skip on CI (`is-ci`). Bypass in an emergency with `git commit/push --no-verify`.
 - **Formatting.** Prettier + `.editorconfig`; `.gitattributes` normalizes line endings
   to LF so Windows dev and Linux CI agree.
 - **Coverage.** `npm run test:coverage` emits `text`/`lcov`/`html` via `@vitest/coverage-v8`.
