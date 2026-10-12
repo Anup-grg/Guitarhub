@@ -1,0 +1,353 @@
+// GuitarHub data model — SRS §8
+// IDs are ULIDs generated app-side (src/lib/id.ts); no DB default on purpose.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BanType {
+  HARD
+  SHADOW
+}
+
+enum Section {
+  GENERAL
+  SONGS
+}
+
+enum PresetKind {
+  FILE
+  BUNDLE
+  CLOUD_LINK
+}
+
+enum PresetStatus {
+  DRAFT
+  QUARANTINE
+  PUBLISHED
+  REJECTED
+  HIDDEN
+}
+
+enum FileRole {
+  PRIMARY
+  IR
+  DEMO_AUDIO
+}
+
+enum ValidationMode {
+  DEEP_JSON
+  SYSEX
+  FIXED_BINARY
+  SHALLOW
+  CLOUD_LINK
+}
+
+enum ReportTargetType {
+  PRESET
+  COMMENT
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum TokenType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
+model User {
+  id            String    @id
+  email         String    @unique
+  emailVerifiedAt DateTime?
+  passwordHash  String?
+  displayName   String
+  avatarUrl     String?
+  bio           String?
+  role          Role      @default(USER)
+  verified      Boolean   @default(false)
+  tosVersion    String?
+  tosAcceptedAt DateTime?
+  totpEnabled   Boolean   @default(false)
+  totpSecret    String?
+  totpPendingSecret String?
+  pendingEmail  String?
+  links         Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bannedAt      DateTime?
+  banType       BanType?
+  banReason     String?
+  deletedAt     DateTime?
+
+  identities        AuthIdentity[]
+  gear              UserGear[]
+  sessions          Session[]
+  presets           Preset[]
+  votes             Vote[]
+  comments          Comment[]
+  reports           Report[]           @relation("ReportReporter")
+  handledReports    Report[]           @relation("ReportHandler")
+  emailTokens       EmailToken[]
+  recoveryCodes     TwoFactorRecoveryCode[]
+  auditLogs         AuditLog[]         @relation("AuditActor")
+}
+
+model AuthIdentity {
+  id             String   @id
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       String
+  providerUserId String
+  createdAt      DateTime @default(now())
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+}
+
+model Session {
+  id               String    @id
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshFamily    String
+  refreshTokenHash String?   @unique
+  usedHashes       String[]  @default([])
+  deviceName       String?
+  ip               String?
+  userAgent        String?
+  stepUpAt         DateTime?
+  lastSeenAt       DateTime?
+  createdAt        DateTime  @default(now())
+  expiresAt        DateTime
+  revokedAt        DateTime?
+
+  @@index([userId])
+  @@index([refreshFamily])
+}
+
+model EmailToken {
+  id        String    @id
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      TokenType
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, type])
+}
+
+model TwoFactorRecoveryCode {
+  id        String    @id
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, codeHash])
+}
+
+model UserGear {
+  id              String  @id
+  userId          String
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pedalId         String
+  pedal           Pedal   @relation(fields: [pedalId], references: [id], onDelete: Cascade)
+  firmwareVersion String?
+
+  @@unique([userId, pedalId])
+}
+
+model Pedal {
+  id                    String         @id
+  brand                 String
+  model                 String
+  slug                  String         @unique
+  aliases               String[]
+  firmwareNotes         String?
+  importInstructionsMd  String         @default("")
+  validationMode        ValidationMode
+  maxPresetBytes        Int            @default(1048576)
+  maxBundleBytes        Int            @default(20971520)
+  maxCompanionBytes     Int            @default(5242880)
+  extensions            String[]
+  enabled               Boolean        @default(true)
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  presets Preset[]
+  gear    UserGear[]
+
+  @@index([brand])
+  @@index([enabled, brand, model])
+}
+
+model Preset {
+  id                 String       @id
+  userId             String
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pedalId            String
+  pedal              Pedal        @relation(fields: [pedalId], references: [id])
+  section            Section
+  title              String
+  descriptionMd      String       @default("")
+  songTitle          String?
+  artist             String?
+  album              String?
+  year               Int?
+  firmwareVersion    String
+  kind               PresetKind   @default(FILE)
+  cloudUrl           String?
+  contentHash        String?
+  storageKey         String?
+  fileSize           Int?
+  fileExt            String?
+  extractedMeta      Json?
+  usesThirdPartyIr   Boolean      @default(false)
+  version            Int          @default(1)
+  status             PresetStatus @default(DRAFT)
+  statusReason       String?
+  downloadCount      Int          @default(0)
+  viewCount          Int          @default(0)
+  hotRank            Float        @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  files     PresetFile[]
+  tags      PresetTag[]
+  votes     Vote[]
+  comments  Comment[]
+  downloads DownloadEvent[]
+
+  @@index([pedalId, section, status, hotRank(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([userId, status])
+  @@index([contentHash])
+}
+
+model PresetFile {
+  id           String   @id
+  presetId     String
+  preset       Preset   @relation(fields: [presetId], references: [id], onDelete: Cascade)
+  presetVersion Int
+  role         FileRole
+  storageKey   String
+  contentHash  String
+  size         Int
+  mime         String?
+  ext          String
+  createdAt    DateTime @default(now())
+
+  @@index([presetId, presetVersion])
+  @@index([contentHash])
+}
+
+model Tag {
+  id          String  @id
+  slug        String  @unique
+  label       String
+  blacklisted Boolean @default(false)
+  presets     PresetTag[]
+}
+
+model PresetTag {
+  presetId String
+  preset   Preset @relation(fields: [presetId], references: [id], onDelete: Cascade)
+  tagId    String
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([presetId, tagId])
+  @@index([tagId])
+}
+
+model Vote {
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  presetId  String
+  preset    Preset  @relation(fields: [presetId], references: [id], onDelete: Cascade)
+  value     Int
+  createdAt DateTime @default(now())
+
+  @@id([userId, presetId])
+  @@index([presetId])
+}
+
+model Comment {
+  id        String    @id
+  presetId  String
+  preset    Preset    @relation(fields: [presetId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  bodyMd    String
+  bodyHtml  String
+  bodyHtmlVersion Int  @default(1)
+  createdAt DateTime  @default(now())
+  editedAt  DateTime?
+  deletedAt DateTime?
+
+  @@index([presetId, createdAt])
+  @@index([presetId, parentId])
+}
+
+model Report {
+  id             String           @id
+  reporterId     String
+  reporter       User             @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType     ReportTargetType
+  targetId       String
+  reason         String
+  status         ReportStatus     @default(OPEN)
+  handledBy      String?
+  handler        User?            @relation("ReportHandler", fields: [handledBy], references: [id])
+  handledAt      DateTime?
+  resolutionNote String?
+  createdAt      DateTime         @default(now())
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+  @@index([reporterId, status])
+}
+
+model AuditLog {
+  id        String   @id
+  actorId   String?
+  actor     User?    @relation("AuditActor", fields: [actorId], references: [id])
+  action    String
+  target    String
+  meta      Json?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId])
+}
+
+model DownloadEvent {
+  id        String   @id
+  presetId  String
+  preset    Preset   @relation(fields: [presetId], references: [id], onDelete: Cascade)
+  clientKey String
+  day       DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([presetId, clientKey, day])
+  @@index([presetId])
+}

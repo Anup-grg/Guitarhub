@@ -1,0 +1,18 @@
+# Normalize line endings for a Windows-dev / Linux-CI+deploy project.
+* text=auto eol=lf
+
+# Shell scripts and container files must stay LF.
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
+.gitlab-ci.yml text eol=lf
+*.yml text eol=lf
+
+# Real binary files.
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.woff binary
+*.woff2 binary

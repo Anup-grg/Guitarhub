@@ -1,0 +1,128 @@
+name: guitarhub
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GuitarHub_dev_2026}
+      POSTGRES_DB: guitarhub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d guitarhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-guitarhub}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-GuitarHub_dev_2026}
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; do sleep 1; done;
+      mc mb -p local/guitarhub-presets || true;
+      mc anonymous set none local/guitarhub-presets || true"
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-GuitarHub_dev_2026}@postgres:5432/guitarhub?schema=public
+      PORT: 4000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Public origin of the web app (links in emails, OAuth redirects, CSRF).
+      APP_URL: ${APP_URL:-http://localhost}
+      # Behind Caddy TLS set COOKIE_SECURE=true so cookies get Secure + the __Host- prefix.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # Honor X-Forwarded-* headers from the Caddy reverse proxy.
+      TRUST_PROXY: "true"
+      TOS_VERSION: ${TOS_VERSION:-1.0}
+      OAUTH_GOOGLE_CLIENT_ID: ${OAUTH_GOOGLE_CLIENT_ID:-}
+      OAUTH_GOOGLE_CLIENT_SECRET: ${OAUTH_GOOGLE_CLIENT_SECRET:-}
+      OAUTH_GITHUB_CLIENT_ID: ${OAUTH_GITHUB_CLIENT_ID:-}
+      OAUTH_GITHUB_CLIENT_SECRET: ${OAUTH_GITHUB_CLIENT_SECRET:-}
+      SMTP_URL: ${SMTP_URL:-}
+      MAIL_FROM: "${MAIL_FROM:-GuitarHub <no-reply@guitarhub.local>}"
+      HIBP_CHECK: ${HIBP_CHECK:-true}
+      # Preset files go to MinIO over the S3 API.
+      STORAGE_DRIVER: ${STORAGE_DRIVER:-s3}
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-guitarhub-presets}
+      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-guitarhub}
+      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-GuitarHub_dev_2026}
+      STORAGE_FORCE_PATH_STYLE: "true"
+      STORAGE_SIGNING_SECRET: ${STORAGE_SIGNING_SECRET:-guitarhub-local-storage-signing-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:4000/api/v1/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://api:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  minio_data:
+  caddy_data:
+  caddy_config:

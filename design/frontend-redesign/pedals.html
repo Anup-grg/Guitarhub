@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedal catalog — GuitarHub</title>
+<meta name="description" content="Browse every supported guitar multi-effects unit: Line 6 Helix, Fractal FM3 and Axe-Fx III, Neural DSP Quad Cortex, Boss GT-1000, Zoom G6, NUX MG-30 and Valeton GP-200.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav" data-od-id="site-nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html" aria-label="GuitarHub home" data-od-id="brand-logo">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+          <circle cx="12" cy="9.2" r="3.3"/>
+          <path d="M12 6.1V5" stroke-linecap="round"/>
+          <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+          <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+          <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+    </a>
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="primary-nav" data-nav-menu aria-label="Primary">
+      <a href="browse.html">Browse</a>
+      <a href="pedals.html" aria-current="page">Pedals</a>
+      <a href="upload.html">Upload</a>
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm" href="#">Sign in</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container section section--tight">
+    <p class="section-label">Catalog</p>
+    <h1 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem)" data-od-id="catalog-title">Supported pedals</h1>
+    <p class="lead mt-3">Nine multi-effects platforms, each with its own file format and sharing rules. Pick a unit to see its specs, import steps and the community's most-loved presets.</p>
+
+    <div class="pedal-grid mt-7" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))" data-od-id="pedal-catalog-grid">
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-helix">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-42deg"></span>
+          <span class="knob" style="--knob-rot:14deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Line 6</span>
+          <span class="pedal-model">Helix</span>
+          <span class="pedal-count mono">4,218 presets · full-size floor unit</span>
+          <span class="chip-row"><span class="chip chip--format">.hlx</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-hx-stomp">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-18deg"></span>
+          <span class="knob" style="--knob-rot:30deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Line 6</span>
+          <span class="pedal-model">HX Stomp</span>
+          <span class="pedal-count mono">1,764 presets · compact</span>
+          <span class="chip-row"><span class="chip chip--format">.hlx</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-fm3">
+        <span class="pedal-visual pedal-visual--signal" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-25deg"></span>
+          <span class="knob" style="--knob-rot:40deg"></span>
+          <span class="led led--signal"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Fractal Audio</span>
+          <span class="pedal-model">FM3</span>
+          <span class="pedal-count mono">2,940 presets · amp modeler / FX</span>
+          <span class="chip-row"><span class="chip chip--format">.syx</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-axe-fx-iii">
+        <span class="pedal-visual pedal-visual--signal" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-50deg"></span>
+          <span class="knob" style="--knob-rot:20deg"></span>
+          <span class="led led--signal"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Fractal Audio</span>
+          <span class="pedal-model">Axe-Fx III</span>
+          <span class="pedal-count mono">3,105 presets · flagship rack</span>
+          <span class="chip-row"><span class="chip chip--format">.syx</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-quad-cortex">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-30deg"></span>
+          <span class="led led--off"></span>
+          <span class="knob" style="--knob-rot:34deg"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Neural DSP</span>
+          <span class="pedal-model">Quad Cortex</span>
+          <span class="pedal-count mono">2,377 presets · cloud sharing</span>
+          <span class="chip-row"><span class="chip chip--cloud">Cortex Cloud link</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-gt-1000">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-12deg"></span>
+          <span class="knob" style="--knob-rot:28deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Boss</span>
+          <span class="pedal-model">GT-1000</span>
+          <span class="pedal-count mono">1,012 presets · floor unit</span>
+          <span class="chip-row"><span class="chip chip--format">.tsrp</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-zoom-g6">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-35deg"></span>
+          <span class="knob" style="--knob-rot:16deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Zoom</span>
+          <span class="pedal-model">G6</span>
+          <span class="pedal-count mono">864 presets · amp + FX</span>
+          <span class="chip-row"><span class="chip chip--format">.fxp</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-nux-mg30">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-22deg"></span>
+          <span class="knob" style="--knob-rot:38deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">NUX</span>
+          <span class="pedal-model">MG-30</span>
+          <span class="pedal-count mono">693 presets · budget-friendly</span>
+          <span class="chip-row"><span class="chip chip--format">.fxp</span></span>
+        </span>
+      </a>
+
+      <a class="pedal-card" href="pedal-detail.html" data-od-id="catalog-valeton-gp200">
+        <span class="pedal-visual" aria-hidden="true">
+          <span class="knob" style="--knob-rot:-28deg"></span>
+          <span class="knob" style="--knob-rot:22deg"></span>
+          <span class="led"></span>
+        </span>
+        <span class="pedal-card-body">
+          <span class="eyebrow">Valeton</span>
+          <span class="pedal-model">GP-200</span>
+          <span class="pedal-count mono">588 presets · amp modeler</span>
+          <span class="chip-row"><span class="chip chip--format">.fxp</span><span class="chip chip--format">.wav</span></span>
+        </span>
+      </a>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer" data-od-id="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" aria-label="GuitarHub home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+              <circle cx="12" cy="9.2" r="3.3"/>
+              <path d="M12 6.1V5" stroke-linecap="round"/>
+              <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+              <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+              <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+        </a>
+        <p class="footer-desc">A community preset library for guitar multi-effects. Share and discover tones across Helix, Fractal, Quad Cortex, Boss and more.</p>
+        <p class="footer-note mono">Presets are user-uploaded. Check firmware before importing.</p>
+      </div>
+      <nav class="footer-col" aria-label="Explore">
+        <h2 class="footer-heading">Explore</h2>
+        <a href="browse.html">Browse presets</a>
+        <a href="browse.html?sort=trending">Trending</a>
+        <a href="pedals.html">Pedal catalog</a>
+      </nav>
+      <nav class="footer-col" aria-label="Contribute">
+        <h2 class="footer-heading">Contribute</h2>
+        <a href="upload.html">Upload a preset</a>
+        <a href="upload.html">Import guide</a>
+        <a href="#">Creator program</a>
+      </nav>
+      <nav class="footer-col" aria-label="About">
+        <h2 class="footer-heading">About</h2>
+        <a href="#">Community guidelines</a>
+        <a href="#">Licensing &amp; attribution</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span class="mono">© 2026 GuitarHub</span>
+      <span class="mono">Not affiliated with any pedal manufacturer.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>

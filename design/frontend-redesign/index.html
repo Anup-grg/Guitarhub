@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuitarHub — Community preset library for guitar multi-effects</title>
+<meta name="description" content="GuitarHub is a community preset-sharing platform for guitar multi-effects: Line 6 Helix, Fractal, Neural DSP Quad Cortex, Boss, Zoom, NUX, Valeton and more.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav" data-od-id="site-nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html" aria-label="GuitarHub home" data-od-id="brand-logo">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+          <circle cx="12" cy="9.2" r="3.3"/>
+          <path d="M12 6.1V5" stroke-linecap="round"/>
+          <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+          <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+          <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+    </a>
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="primary-nav" data-nav-menu aria-label="Primary">
+      <a href="browse.html">Browse</a>
+      <a href="pedals.html">Pedals</a>
+      <a href="upload.html">Upload</a>
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm" href="#">Sign in</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero" data-od-id="home-hero">
+    <div class="container hero-inner">
+      <p class="section-label">Community patch library</p>
+      <h1 class="hero-title" data-od-id="hero-title">Every tone,<br>dialed in <span class="accent">by players.</span></h1>
+      <p class="hero-sub">Search presets from Line&nbsp;6, Fractal, Neural DSP, Boss and more. Open a patch, read the exact firmware it was built on, hear how the community voted, and load it in minutes.</p>
+      <form class="hero-search" role="search" action="browse.html" data-od-id="home-search">
+        <div class="search">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <label class="label" for="home-q" style="position:absolute;left:-9999px">Search presets</label>
+          <input class="input" id="home-q" name="q" type="search" placeholder="Search songs, tones, pedals or creators">
+        </div>
+        <button class="btn btn-primary btn-lg" type="submit" data-od-id="home-search-submit">Search</button>
+      </form>
+      <div class="hero-quick">
+        <span class="eyebrow" style="margin-right:4px">Popular:</span>
+        <a class="chip chip--tag" href="browse.html">ambient</a>
+        <a class="chip chip--tag" href="browse.html">high-gain</a>
+        <a class="chip chip--tag" href="browse.html">worship</a>
+        <a class="chip chip--tag" href="browse.html">djent</a>
+        <a class="chip chip--tag" href="browse.html">blues</a>
+        <a class="chip chip--tag" href="browse.html">song</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TRENDING ===================== -->
+  <section class="section section--tight" data-od-id="trending-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Trending now</p>
+          <h2 class="section-title">What the board is voting up</h2>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="browse.html?sort=trending">View all trending
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <ol class="list">
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="trend-row-1">
+            <span class="rank rank--top">01</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Pink Floyd — Comfortably Numb Solo</span>
+                <span class="chip chip--pedal">Fractal FM3</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">fretjunkie</span>
+                <span class="badge-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg>Verified</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">delay</span><span class="chip chip--tag">modulation</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>604</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>91</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>3.1k</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="trend-row-2">
+            <span class="rank rank--top">02</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Van Halen — Eruption</span>
+                <span class="chip chip--pedal">Fractal Axe-Fx III</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">whammybar</span>
+                <span class="badge-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg>Verified</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">high-gain</span><span class="chip chip--tag">crunch</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>512</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>73</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>2.4k</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="trend-row-3">
+            <span class="rank rank--top">03</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Modern Metal Rhythm (Djent)</span>
+                <span class="chip chip--pedal">Quad Cortex</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">djentmachine</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">metal</span><span class="chip chip--tag">high-gain</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>431</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>66</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>1.8k</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="trend-row-4">
+            <span class="rank">04</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Ambient Worship Pad</span>
+                <span class="chip chip--pedal">Line 6 Helix</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">silentStrings</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">ambient</span><span class="chip chip--tag">worship</span><span class="chip chip--tag">reverb</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>342</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>48</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>1.2k</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="trend-row-5">
+            <span class="rank">05</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Boutique Clean Edge-of-Breakup</span>
+                <span class="chip chip--pedal">Quad Cortex</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">toneweaver</span>
+                <span class="badge-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg>Verified</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">clean</span><span class="chip chip--tag">blues</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>287</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>39</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>980</span>
+            </span>
+          </a>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="container"><div class="signal-line" aria-hidden="true"></div></div>
+
+  <!-- ===================== NEWEST ===================== -->
+  <section class="section section--tight" data-od-id="newest-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Newest presets</p>
+          <h2 class="section-title">Fresh off the board</h2>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="browse.html?sort=newest">View all new
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <ol class="list">
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="new-row-1">
+            <span class="rank">01</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Acoustic Sim + Delay</span>
+                <span class="chip chip--pedal">Zoom G6</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">stageLeft</span>
+                <span class="dot"></span>
+                <span class="mono">2 days ago</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">clean</span><span class="chip chip--tag">delay</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>141</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>18</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>520</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="new-row-2">
+            <span class="rank">02</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Plexi Crunch Loaded</span>
+                <span class="chip chip--pedal">Boss GT-1000</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">ampfarmer</span>
+                <span class="dot"></span>
+                <span class="mono">3 days ago</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">crunch</span><span class="chip chip--tag">high-gain</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>156</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>22</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>640</span>
+            </span>
+          </a>
+        </li>
+        <li>
+          <a class="list-row" href="preset-detail.html" data-od-id="new-row-3">
+            <span class="rank">03</span>
+            <span class="list-main">
+              <span class="list-title-row">
+                <span class="list-title">Tube Screamer Boost + Fender Clean</span>
+                <span class="chip chip--pedal">Line 6 HX Stomp</span>
+              </span>
+              <span class="list-meta">
+                <span class="mono">patchmonger</span>
+                <span class="badge-verified"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg>Verified</span>
+                <span class="dot"></span>
+                <span class="mono">5 days ago</span>
+                <span class="dot"></span>
+                <span class="tag-row"><span class="chip chip--tag">clean</span><span class="chip chip--tag">crunch</span></span>
+              </span>
+            </span>
+            <span class="list-stats">
+              <span class="score"><span class="glyph" aria-hidden="true">▲</span>198</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>27</span>
+              <span class="stat-pair"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>760</span>
+            </span>
+          </a>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="container"><div class="signal-line" aria-hidden="true"></div></div>
+
+  <!-- ===================== PEDAL QUICK NAV ===================== -->
+  <section class="section section--tight" data-od-id="pedal-nav-section">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="section-label">Browse by pedal</p>
+          <h2 class="section-title">Pick your rig</h2>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="pedals.html">Full catalog
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <div class="pedal-grid">
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-helix">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-42deg"></span>
+            <span class="knob" style="--knob-rot:12deg"></span>
+            <span class="led"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Line 6</span>
+            <span class="pedal-model">Helix</span>
+            <span class="pedal-count mono">4,218 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.hlx</span><span class="chip chip--format">.wav</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-hx-stomp">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-18deg"></span>
+            <span class="knob" style="--knob-rot:30deg"></span>
+            <span class="led"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Line 6</span>
+            <span class="pedal-model">HX Stomp</span>
+            <span class="pedal-count mono">1,764 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.hlx</span><span class="chip chip--format">.wav</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-fm3">
+          <span class="pedal-visual pedal-visual--signal" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-25deg"></span>
+            <span class="knob" style="--knob-rot:40deg"></span>
+            <span class="led led--signal"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Fractal Audio</span>
+            <span class="pedal-model">FM3</span>
+            <span class="pedal-count mono">2,940 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.syx</span><span class="chip chip--format">.wav</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-axe-fx-iii">
+          <span class="pedal-visual pedal-visual--signal" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-50deg"></span>
+            <span class="knob" style="--knob-rot:20deg"></span>
+            <span class="led led--signal"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Fractal Audio</span>
+            <span class="pedal-model">Axe-Fx III</span>
+            <span class="pedal-count mono">3,105 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.syx</span><span class="chip chip--format">.wav</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-quad-cortex">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-30deg"></span>
+            <span class="led led--off"></span>
+            <span class="knob" style="--knob-rot:34deg"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Neural DSP</span>
+            <span class="pedal-model">Quad Cortex</span>
+            <span class="pedal-count mono">2,377 presets</span>
+            <span class="chip-row"><span class="chip chip--cloud">Cortex Cloud link</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-gt-1000">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-12deg"></span>
+            <span class="knob" style="--knob-rot:28deg"></span>
+            <span class="led"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Boss</span>
+            <span class="pedal-model">GT-1000</span>
+            <span class="pedal-count mono">1,012 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.tsrp</span><span class="chip chip--format">.wav</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-zoom-g6">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-35deg"></span>
+            <span class="knob" style="--knob-rot:16deg"></span>
+            <span class="led"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">Zoom</span>
+            <span class="pedal-model">G6</span>
+            <span class="pedal-count mono">864 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.fxp</span></span>
+          </span>
+        </a>
+
+        <a class="pedal-card" href="pedal-detail.html" data-od-id="pedal-card-nux-mg30">
+          <span class="pedal-visual" aria-hidden="true">
+            <span class="knob" style="--knob-rot:-22deg"></span>
+            <span class="knob" style="--knob-rot:38deg"></span>
+            <span class="led"></span>
+          </span>
+          <span class="pedal-card-body">
+            <span class="eyebrow">NUX</span>
+            <span class="pedal-model">MG-30</span>
+            <span class="pedal-count mono">693 presets</span>
+            <span class="chip-row"><span class="chip chip--format">.fxp</span></span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer" data-od-id="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" aria-label="GuitarHub home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+              <circle cx="12" cy="9.2" r="3.3"/>
+              <path d="M12 6.1V5" stroke-linecap="round"/>
+              <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+              <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+              <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+        </a>
+        <p class="footer-desc">A community preset library for guitar multi-effects. Share and discover tones across Helix, Fractal, Quad Cortex, Boss and more.</p>
+        <p class="footer-note mono">Presets are user-uploaded. Check firmware before importing.</p>
+      </div>
+      <nav class="footer-col" aria-label="Explore">
+        <h2 class="footer-heading">Explore</h2>
+        <a href="browse.html">Browse presets</a>
+        <a href="browse.html?sort=trending">Trending</a>
+        <a href="pedals.html">Pedal catalog</a>
+      </nav>
+      <nav class="footer-col" aria-label="Contribute">
+        <h2 class="footer-heading">Contribute</h2>
+        <a href="upload.html">Upload a preset</a>
+        <a href="upload.html">Import guide</a>
+        <a href="#">Creator program</a>
+      </nav>
+      <nav class="footer-col" aria-label="About">
+        <h2 class="footer-heading">About</h2>
+        <a href="#">Community guidelines</a>
+        <a href="#">Licensing &amp; attribution</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span class="mono">© 2026 GuitarHub</span>
+      <span class="mono">Not affiliated with any pedal manufacturer.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>

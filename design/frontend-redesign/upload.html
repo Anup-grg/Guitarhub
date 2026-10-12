@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upload a preset — GuitarHub</title>
+<meta name="description" content="Share a preset with the GuitarHub community: upload a file or a Cortex Cloud link, add companion IRs, set the section and firmware version, and publish.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav" data-od-id="site-nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html" aria-label="GuitarHub home" data-od-id="brand-logo">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+          <circle cx="12" cy="9.2" r="3.3"/>
+          <path d="M12 6.1V5" stroke-linecap="round"/>
+          <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+          <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+          <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+    </a>
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="primary-nav" data-nav-menu aria-label="Primary">
+      <a href="browse.html">Browse</a>
+      <a href="pedals.html">Pedals</a>
+      <a href="upload.html" aria-current="page">Upload</a>
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm" href="#">Sign in</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container section section--tight" style="max-width:900px">
+    <p class="section-label">Contribute</p>
+    <h1 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem)" data-od-id="upload-title">Upload a preset</h1>
+    <p class="lead mt-3">Share a tone with the community. Pick your pedal, attach the file (or a Cortex Cloud link), and document the firmware it was built on.</p>
+
+    <div data-wizard class="mt-7">
+
+      <!-- ===================== SUCCESS STATE ===================== -->
+      <div class="success-card" data-success hidden data-od-id="upload-success" role="status">
+        <span class="success-mark" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </span>
+        <h2 class="section-title" style="font-size:1.6rem">Preset published</h2>
+        <p class="muted mt-3" style="max-width:48ch;margin-inline:auto">Your preset is live. It's queued for a quick duplicate check, then it will appear in Browse under the section you selected.</p>
+        <div class="row wrap gap-3 mt-6" style="justify-content:center">
+          <a class="btn btn-primary" href="preset-detail.html">View your preset</a>
+          <a class="btn btn-secondary" href="browse.html">Back to browse</a>
+        </div>
+      </div>
+
+      <!-- ===================== WIZARD FORM ===================== -->
+      <form data-wizard-form class="stack gap-4" novalidate>
+
+        <!-- 1 · Pedal -->
+        <section class="wizard-section" data-od-id="step-pedal">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">01</span>
+            <h2 class="wizard-title">Choose your pedal</h2>
+          </div>
+          <div class="field">
+            <label class="label" for="wizard-pedal">Pedal <span class="field-req">*</span></label>
+            <select class="select" id="wizard-pedal" name="pedal" required>
+              <option value="" data-sharing="file">Select a pedal…</option>
+              <option value="Line 6 Helix" data-sharing="file">Line 6 Helix</option>
+              <option value="Line 6 HX Stomp" data-sharing="file">Line 6 HX Stomp</option>
+              <option value="Fractal Audio FM3" data-sharing="file">Fractal Audio FM3</option>
+              <option value="Fractal Audio Axe-Fx III" data-sharing="file">Fractal Audio Axe-Fx III</option>
+              <option value="Neural DSP Quad Cortex" data-sharing="cloud">Neural DSP Quad Cortex (Cortex Cloud)</option>
+              <option value="Boss GT-1000" data-sharing="file">Boss GT-1000</option>
+              <option value="Zoom G6" data-sharing="file">Zoom G6</option>
+              <option value="NUX MG-30" data-sharing="file">NUX MG-30</option>
+              <option value="Valeton GP-200" data-sharing="file">Valeton GP-200</option>
+            </select>
+            <p class="field-hint">The accepted file format and companion-IR limit depend on the pedal you choose.</p>
+          </div>
+        </section>
+
+        <!-- 2 · Files (file-sharing pedals) -->
+        <section class="wizard-section" data-file-field data-od-id="step-file">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">02</span>
+            <h2 class="wizard-title">Upload your preset file</h2>
+          </div>
+
+          <label class="dropzone" data-dropzone>
+            <span class="dropzone-icon" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>
+            </span>
+            <span class="dropzone-title">Drag &amp; drop your preset here</span>
+            <span class="muted" style="font-size:13.5px">or <span style="color:var(--accent);text-decoration:underline">browse your files</span></span>
+            <span class="mono faint" style="font-size:12px" id="accepted-hint">Accepted: .hlx · .wav (max 32 MB)</span>
+            <input class="sr-only" id="wizard-file" name="file" type="file" accept=".hlx,.wav,.syx,.fxp,.tsrp" style="position:absolute;width:1px;height:1px;opacity:0">
+          </label>
+
+          <!-- inspection result -->
+          <div class="card mt-4" data-inspection hidden data-od-id="inspection-result">
+            <p class="section-label">Inspection result</p>
+            <div class="row wrap gap-5 mt-4">
+              <div class="grow" style="min-width:200px">
+                <span class="stat-label">File name</span>
+                <div class="file-name" data-ins-name>—</div>
+              </div>
+              <div>
+                <span class="stat-label">Size</span>
+                <div class="mono" data-ins-size>—</div>
+              </div>
+              <div>
+                <span class="stat-label">Format</span>
+                <div class="mono" data-ins-ext>—</div>
+              </div>
+              <div>
+                <span class="stat-label">Device</span>
+                <div class="mono" data-ins-device>—</div>
+              </div>
+            </div>
+            <div class="divider mt-4 mb-4"></div>
+            <div class="spec-grid">
+              <div class="spec"><dt>Extracted preset name</dt><dd>Comfortably Numb Solo</dd></div>
+              <div class="spec"><dt>Firmware (from file)</dt><dd class="mono">8.0</dd></div>
+              <div class="spec"><dt>Companion IRs detected</dt><dd class="mono">2</dd></div>
+            </div>
+            <div class="banner banner--warn mt-4" data-ins-duplicate hidden>
+              <span class="banner-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+              </span>
+              <span>
+                <strong>Possible duplicate.</strong> A preset with a matching name already exists for this pedal.
+                <label class="check mt-3" style="display:flex"><input type="checkbox" name="fork"> Publish anyway as a forked / updated version</label>
+              </span>
+            </div>
+          </div>
+
+          <!-- companion IRs -->
+          <div class="field mt-5">
+            <span class="label">Companion IRs <span class="muted" style="text-transform:none;letter-spacing:0">(optional · up to 4)</span></span>
+            <p class="field-hint">Add the <span class="mono">.wav</span> impulse responses this preset depends on so others can load it exactly as intended.</p>
+            <label class="btn btn-secondary btn-sm" style="align-self:flex-start;margin-top:4px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+              Add IR files
+              <input class="sr-only" id="wizard-ir" type="file" accept=".wav" multiple style="position:absolute;width:1px;height:1px;opacity:0">
+            </label>
+            <p class="mono faint" style="font-size:12px"><span data-ir-count>0</span> of 4 IRs added</p>
+            <ul class="ir-list" data-ir-list></ul>
+            <p class="field-hint" data-ir-empty>No IRs added yet.</p>
+          </div>
+        </section>
+
+        <!-- 2b · Cloud link (Cortex Cloud pedals) -->
+        <section class="wizard-section" data-cloud-field hidden data-od-id="step-cloud">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">02</span>
+            <h2 class="wizard-title">Paste your Cortex Cloud link</h2>
+          </div>
+          <div class="field">
+            <label class="label" for="wizard-cloud">Cortex Cloud share URL <span class="field-req">*</span></label>
+            <input class="input" id="wizard-cloud" name="cloud_url" type="url" placeholder="https://cloud.neuraldsp.com/cloud/p/…" >
+            <p class="field-hint">Make sure the share link is set to <strong>public</strong> in Cortex Cloud so others can open it.</p>
+          </div>
+          <div class="banner banner--info mt-4">
+            <span class="banner-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+            </span>
+            <span>Quad Cortex presets are shared through Cortex Cloud, so no file upload is needed. Companion IRs are handled by the cloud link too.</span>
+          </div>
+        </section>
+
+        <!-- 3 · Section + song -->
+        <section class="wizard-section" data-od-id="step-section">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">03</span>
+            <h2 class="wizard-title">Section</h2>
+          </div>
+          <div class="field">
+            <label class="label" for="wizard-section">This preset is…</label>
+            <select class="select" id="wizard-section" name="section">
+              <option value="general">General (a tone, not tied to a song)</option>
+              <option value="songs">Songs (aimed at a specific track)</option>
+            </select>
+          </div>
+
+          <div class="filter-grid mt-5" data-song-fields hidden data-od-id="song-fields">
+            <div class="field col-6">
+              <label class="label" for="song-title">Song title <span class="field-req">*</span></label>
+              <input class="input" id="song-title" name="song_title" type="text" placeholder="e.g. Comfortably Numb">
+            </div>
+            <div class="field col-6">
+              <label class="label" for="song-artist">Artist <span class="field-req">*</span></label>
+              <input class="input" id="song-artist" name="song_artist" type="text" placeholder="e.g. Pink Floyd">
+            </div>
+            <div class="field col-6">
+              <label class="label" for="song-album">Album</label>
+              <input class="input" id="song-album" name="song_album" type="text" placeholder="e.g. The Wall">
+            </div>
+            <div class="field col-6">
+              <label class="label" for="song-year">Year</label>
+              <input class="input" id="song-year" name="song_year" type="number" min="1900" max="2100" placeholder="1979">
+            </div>
+          </div>
+        </section>
+
+        <!-- 4 · Details -->
+        <section class="wizard-section" data-od-id="step-details">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">04</span>
+            <h2 class="wizard-title">Name &amp; description</h2>
+          </div>
+          <div class="stack gap-4">
+            <div class="field">
+              <label class="label" for="wizard-name">Preset name <span class="field-req">*</span></label>
+              <input class="input" id="wizard-name" name="name" type="text" minlength="2" maxlength="120" required placeholder="e.g. Ambient Worship Pad">
+              <p class="field-hint">2–120 characters. Be specific — "P&W shimmer pad" beats "my preset 2".</p>
+            </div>
+            <div class="field">
+              <label class="label" for="wizard-desc">Description</label>
+              <textarea class="textarea" id="wizard-desc" name="description" maxlength="4000" data-count="desc-count" placeholder="What it sounds like, which pickups you used, and how to play it. Markdown supported."></textarea>
+              <p class="field-hint">Markdown supported — <span class="mono"><span id="desc-count">0</span>/4000</span></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5 · Tech -->
+        <section class="wizard-section" data-od-id="step-tech">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">05</span>
+            <h2 class="wizard-title">Firmware &amp; tags</h2>
+          </div>
+          <div class="filter-grid">
+            <div class="field col-6">
+              <label class="label" for="wizard-firmware">Firmware / editor version <span class="field-req">*</span></label>
+              <input class="input mono" id="wizard-firmware" name="firmware" type="text" required placeholder="e.g. 4.20">
+              <p class="field-hint">Required. Helps others match your rig before importing.</p>
+            </div>
+            <div class="field col-6">
+              <label class="label" for="wizard-tags">Tags</label>
+              <input class="input" id="wizard-tags" name="tags" type="text" placeholder="ambient, worship, reverb">
+              <p class="field-hint">Comma-separated · max 5 tags.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6 · Attestation + actions -->
+        <section class="wizard-section" data-od-id="step-publish">
+          <div class="wizard-head">
+            <span class="wizard-num" aria-hidden="true">06</span>
+            <h2 class="wizard-title">Publish</h2>
+          </div>
+          <label class="check" style="align-items:flex-start">
+            <input type="checkbox" name="license" required style="margin-top:3px">
+            <span>I created this preset, or have permission to share it, and I agree to the <a href="#" style="color:var(--signal);text-decoration:underline">community guidelines</a>. I confirm I'm not uploading copyrighted material I don't own.</span>
+          </label>
+          <div class="divider mt-5 mb-5"></div>
+          <div class="row wrap gap-3" style="justify-content:flex-end">
+            <button class="btn btn-secondary" type="button" data-od-id="save-draft">Save draft</button>
+            <button class="btn btn-primary btn-lg" type="submit" data-od-id="publish-submit">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>
+              Publish preset
+            </button>
+          </div>
+        </section>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer" data-od-id="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" aria-label="GuitarHub home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+              <circle cx="12" cy="9.2" r="3.3"/>
+              <path d="M12 6.1V5" stroke-linecap="round"/>
+              <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+              <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+              <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+        </a>
+        <p class="footer-desc">A community preset library for guitar multi-effects. Share and discover tones across Helix, Fractal, Quad Cortex, Boss and more.</p>
+        <p class="footer-note mono">Presets are user-uploaded. Check firmware before importing.</p>
+      </div>
+      <nav class="footer-col" aria-label="Explore">
+        <h2 class="footer-heading">Explore</h2>
+        <a href="browse.html">Browse presets</a>
+        <a href="browse.html?sort=trending">Trending</a>
+        <a href="pedals.html">Pedal catalog</a>
+      </nav>
+      <nav class="footer-col" aria-label="Contribute">
+        <h2 class="footer-heading">Contribute</h2>
+        <a href="upload.html">Upload a preset</a>
+        <a href="upload.html">Import guide</a>
+        <a href="#">Creator program</a>
+      </nav>
+      <nav class="footer-col" aria-label="About">
+        <h2 class="footer-heading">About</h2>
+        <a href="#">Community guidelines</a>
+        <a href="#">Licensing &amp; attribution</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span class="mono">© 2026 GuitarHub</span>
+      <span class="mono">Not affiliated with any pedal manufacturer.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>

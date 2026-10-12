@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Browse presets — GuitarHub</title>
+<meta name="description" content="Filter community presets by pedal, section, tag, rating and downloads across Line 6, Fractal, Neural DSP, Boss, Zoom, NUX and Valeton.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-nav" data-od-id="site-nav">
+  <div class="container nav-inner">
+    <a class="brand" href="index.html" aria-label="GuitarHub home" data-od-id="brand-logo">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+          <circle cx="12" cy="9.2" r="3.3"/>
+          <path d="M12 6.1V5" stroke-linecap="round"/>
+          <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+          <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+          <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+          <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+    </a>
+    <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-links" id="primary-nav" data-nav-menu aria-label="Primary">
+      <a href="browse.html" aria-current="page">Browse</a>
+      <a href="pedals.html">Pedals</a>
+      <a href="upload.html">Upload</a>
+      <div class="nav-actions">
+        <a class="btn btn-ghost btn-sm" href="#">Sign in</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="container section section--tight">
+    <p class="section-label">Preset library</p>
+    <h1 class="section-title" style="font-size:clamp(1.8rem,4vw,2.6rem)" data-od-id="browse-title">Browse presets</h1>
+    <p class="lead mt-3">Filter by pedal, section, tag and quality signals. Every preset lists the firmware it was built on so you can match your rig before importing.</p>
+
+    <!-- ===================== FILTERS ===================== -->
+    <form class="panel mt-6" data-od-id="browse-filters" role="search">
+      <div class="filter-grid">
+        <div class="field col-6">
+          <label class="label" for="f-q">Search</label>
+          <div class="search">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input class="input" id="f-q" name="q" type="search" placeholder="Title, song, creator">
+          </div>
+        </div>
+
+        <div class="field col-6">
+          <label class="label" for="f-pedal">Pedal</label>
+          <select class="select" id="f-pedal" name="pedal">
+            <option value="">All pedals</option>
+            <option>Line 6 Helix</option>
+            <option>Line 6 HX Stomp</option>
+            <option>Fractal Audio FM3</option>
+            <option>Fractal Audio Axe-Fx III</option>
+            <option>Neural DSP Quad Cortex</option>
+            <option>Boss GT-1000</option>
+            <option>Zoom G6</option>
+            <option>NUX MG-30</option>
+            <option>Valeton GP-200</option>
+          </select>
+        </div>
+
+        <div class="field col-6">
+          <span class="label" id="f-section-label">Section</span>
+          <div class="segmented" role="group" aria-labelledby="f-section-label" data-tabs="section">
+            <button type="button" class="is-active" data-tab="all">All</button>
+            <button type="button" data-tab="general">General</button>
+            <button type="button" data-tab="songs">Songs</button>
+          </div>
+        </div>
+
+        <div class="field col-6">
+          <label class="label" for="f-tag">Tag</label>
+          <input class="input" id="f-tag" name="tag" type="text" placeholder="e.g. ambient, high-gain">
+        </div>
+
+        <div class="field col-6">
+          <label class="label" for="f-sort">Sort</label>
+          <select class="select" id="f-sort" name="sort">
+            <option value="trending">Trending</option>
+            <option value="newest">Newest</option>
+            <option value="rating">Top rated</option>
+            <option value="downloads">Most downloaded</option>
+            <option value="comments">Most commented</option>
+          </select>
+        </div>
+
+        <div class="field col-6">
+          <span class="label">Quality</span>
+          <div class="row wrap gap-5" style="padding-top:6px">
+            <label class="check"><input type="checkbox" name="ir"> Uses custom IRs</label>
+            <label class="check"><input type="checkbox" name="verified"> Verified creator</label>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- ===================== RESULTS META ===================== -->
+    <div class="section-head mt-6">
+      <p class="mono" style="font-size:13px;color:var(--muted)" data-od-id="result-count">
+        Showing <span class="strong">6</span> of <span class="strong">248</span> presets
+      </p>
+      <div class="row wrap gap-3" aria-live="polite">
+        <span class="eyebrow">Active filters</span>
+        <span class="chip chip--pedal">Line 6 Helix <span aria-hidden="true">×</span></span>
+        <span class="chip">ambient <span aria-hidden="true">×</span></span>
+        <span class="eyebrow" style="margin-left:8px">Sorted by</span>
+        <span class="chip chip--section">Trending</span>
+      </div>
+    </div>
+
+    <!-- ===================== PRESET CARDS ===================== -->
+    <div class="pedal-grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))" data-od-id="preset-results">
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-eruption">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Fractal Axe-Fx III</span>
+          <span class="chip chip--section">Song</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Van Halen — Eruption</a></h3>
+        <p class="muted" style="font-size:14px">1959 Plexi cranked wide open with a touch of plate reverb — the brown sound, one patch, no external pedals.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">high-gain</span>
+          <span class="chip chip--tag">crunch</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm">FJ</span>
+            <span style="font-size:13.5px" class="strong">fretjunkie</span>
+            <span class="badge-verified" aria-label="Verified creator"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg></span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>512</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>73</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>2.4k</span>
+          </span>
+        </div>
+      </article>
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-comfortably-numb">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Fractal FM3</span>
+          <span class="chip chip--section">Song</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Pink Floyd — Comfortably Numb Solo</a></h3>
+        <p class="muted" style="font-size:14px">Studio-accurate outro solo: boosted amp, long modulated delay, and a rotary fill for the sustained bends.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">delay</span>
+          <span class="chip chip--tag">modulation</span>
+          <span class="chip chip--tag">reverb</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm">FJ</span>
+            <span style="font-size:13.5px" class="strong">fretjunkie</span>
+            <span class="badge-verified" aria-label="Verified creator"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg></span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>604</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>91</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>3.1k</span>
+          </span>
+        </div>
+      </article>
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-ambient-worship">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Line 6 Helix</span>
+          <span class="chip">General</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Ambient Worship Pad</a></h3>
+        <p class="muted" style="font-size:14px">Evolving shimmer pad with an octave-up reverb tail — sits behind a clean amp for swells and ambient sections.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">ambient</span>
+          <span class="chip chip--tag">worship</span>
+          <span class="chip chip--tag">reverb</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm avatar--signal">SS</span>
+            <span style="font-size:13.5px" class="strong">silentStrings</span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>342</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>48</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>1.2k</span>
+          </span>
+        </div>
+      </article>
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-djent">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Neural DSP Quad Cortex</span>
+          <span class="chip">General</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Modern Metal Rhythm (Djent)</a></h3>
+        <p class="muted" style="font-size:14px">Tight high-gain rhythm with a noise gate that clamps 8-string palm mutes and a mid-forward lead snapshot.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">metal</span>
+          <span class="chip chip--tag">high-gain</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm">DM</span>
+            <span style="font-size:13.5px" class="strong">djentmachine</span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>431</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>66</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>1.8k</span>
+          </span>
+        </div>
+      </article>
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-tube-screamer">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Line 6 HX Stomp</span>
+          <span class="chip">General</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Tube Screamer Boost + Fender Clean</a></h3>
+        <p class="muted" style="font-size:14px">Classic mid-hump overdrive into a Deluxe-style clean. Two snapshots: rhythm and a pushed solo lead.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">clean</span>
+          <span class="chip chip--tag">crunch</span>
+          <span class="chip chip--tag">blues</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm avatar--signal">PM</span>
+            <span style="font-size:13.5px" class="strong">patchmonger</span>
+            <span class="badge-verified" aria-label="Verified creator"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg></span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>198</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>27</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>760</span>
+          </span>
+        </div>
+      </article>
+
+      <article class="card preset-card card--hover" data-od-id="preset-card-boutique-clean">
+        <div class="chip-row">
+          <span class="chip chip--pedal">Neural DSP Quad Cortex</span>
+          <span class="chip">General</span>
+        </div>
+        <h3 class="preset-title" style="font-size:1.15rem"><a href="preset-detail.html">Boutique Clean Edge-of-Breakup</a></h3>
+        <p class="muted" style="font-size:14px">Dumble-style clean that blooms when you dig in. Roll the volume knob back and it stays glassy and articulate.</p>
+        <div class="tag-row">
+          <span class="chip chip--tag">clean</span>
+          <span class="chip chip--tag">blues</span>
+        </div>
+        <div class="row wrap gap-3" style="justify-content:space-between;margin-top:auto;padding-top:14px;border-top:1px solid var(--border)">
+          <span class="row gap-2">
+            <span class="avatar avatar--sm avatar--signal">TW</span>
+            <span style="font-size:13.5px" class="strong">toneweaver</span>
+            <span class="badge-verified" aria-label="Verified creator"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.4l2.4 2.4 4.6-4.9"/></svg></span>
+          </span>
+          <span class="list-stats" style="gap:12px">
+            <span class="score"><span class="glyph" aria-hidden="true">▲</span>287</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>39</span>
+            <span class="stat-pair"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>980</span>
+          </span>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="text-center mt-6">
+      <button class="btn btn-secondary btn-lg" type="button" data-od-id="load-more">Load more presets</button>
+      <p class="mono faint mt-3" style="font-size:12px">Showing 6 of 248</p>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer" data-od-id="site-footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" aria-label="GuitarHub home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2.7" y="2.7" width="18.6" height="18.6" rx="5"/>
+              <circle cx="12" cy="9.2" r="3.3"/>
+              <path d="M12 6.1V5" stroke-linecap="round"/>
+              <circle cx="12" cy="9.2" r=".95" fill="currentColor" stroke="none"/>
+              <path d="M6.4 16.8h11.2" stroke-linecap="round"/>
+              <circle cx="9" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+              <circle cx="15" cy="16.8" r="1.05" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="brand-name">Guitar<span class="brand-name-accent">Hub</span></span>
+        </a>
+        <p class="footer-desc">A community preset library for guitar multi-effects. Share and discover tones across Helix, Fractal, Quad Cortex, Boss and more.</p>
+        <p class="footer-note mono">Presets are user-uploaded. Check firmware before importing.</p>
+      </div>
+      <nav class="footer-col" aria-label="Explore">
+        <h2 class="footer-heading">Explore</h2>
+        <a href="browse.html">Browse presets</a>
+        <a href="browse.html?sort=trending">Trending</a>
+        <a href="pedals.html">Pedal catalog</a>
+      </nav>
+      <nav class="footer-col" aria-label="Contribute">
+        <h2 class="footer-heading">Contribute</h2>
+        <a href="upload.html">Upload a preset</a>
+        <a href="upload.html">Import guide</a>
+        <a href="#">Creator program</a>
+      </nav>
+      <nav class="footer-col" aria-label="About">
+        <h2 class="footer-heading">About</h2>
+        <a href="#">Community guidelines</a>
+        <a href="#">Licensing &amp; attribution</a>
+        <a href="#">Support</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <span class="mono">© 2026 GuitarHub</span>
+      <span class="mono">Not affiliated with any pedal manufacturer.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+# GuitarHub production stack (CI/CD).
+#
+# Built by the `build:*` jobs in .gitlab-ci.yml and deployed by deploy/deploy.sh.
+# Images are pulled from the GitLab Container Registry; nothing is built here.
+#
+# Server layout (see README "CI/CD"):
+#   $DEPLOY_PATH/deploy/docker-compose.prod.yml   (rsynced by the pipeline)
+#   $DEPLOY_PATH/deploy/Caddyfile                 (rsynced by the pipeline)
+#   $DEPLOY_PATH/deploy/.env                      (secrets, NOT touched by rsync)
+#
+# Because this file lives in deploy/, Compose reads its project `.env` (used for
+# ${VAR} interpolation) and the service `env_file` from deploy/.env too.
+
+name: guitarhub
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: guitarhub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d guitarhub"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-guitarhub}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; do sleep 1; done;
+      mc mb -p local/guitarhub-presets || true;
+      mc anonymous set none local/guitarhub-presets || true"
+
+  api:
+    image: ${REGISTRY:?REGISTRY is required}/api:${IMAGE_TAG:?IMAGE_TAG is required}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/guitarhub?schema=public
+      PORT: "4000"
+      TRUST_PROXY: "true"
+      STORAGE_DRIVER: s3
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: ${MINIO_ROOT_USER:-guitarhub}
+      STORAGE_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      STORAGE_FORCE_PATH_STYLE: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:4000/api/v1/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  web:
+    image: ${REGISTRY:?REGISTRY is required}/web:${IMAGE_TAG:?IMAGE_TAG is required}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_INTERNAL_URL: http://api:4000
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "fetch('http://127.0.0.1:3000/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  minio_data:
+  caddy_data:
+  caddy_config:

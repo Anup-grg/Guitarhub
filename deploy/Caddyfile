@@ -1,0 +1,54 @@
+# Local / reverse proxy entrypoint (SRS §6.5 security headers).
+#
+# Production: swap `:80` for your real hostname (e.g. `guitarhub.example.com`)
+# and Caddy will enable automatic HTTPS with a Let's Encrypt cert. See the
+# commented example at the bottom.
+:80 {
+	encode gzip
+
+	# Security headers for every response (SRS §6.5).
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Cross-Origin-Opener-Policy same-origin
+		Cross-Origin-Resource-Policy same-origin
+		# Base CSP. Next.js ships small inline bootstrap scripts, so 'unsafe-inline'
+		# (script-src) and 'unsafe-eval' are required here. Follow-up: generate a
+		# per-request nonce in Next and tighten to `script-src 'self' 'nonce-...'`.
+		Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'"
+	}
+
+	handle /api/* {
+		reverse_proxy api:4000
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}
+
+# Production example (TLS terminated by Caddy on your hostname):
+# guitars.example.com {
+# 	encode gzip
+#
+# 	header {
+# 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+# 		X-Content-Type-Options nosniff
+# 		Referrer-Policy strict-origin-when-cross-origin
+# 		X-Frame-Options DENY
+# 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+# 		Cross-Origin-Opener-Policy same-origin
+# 		Cross-Origin-Resource-Policy same-origin
+# 		Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'"
+# 	}
+#
+# 	handle /api/* {
+# 		reverse_proxy api:4000
+# 	}
+#
+# 	handle {
+# 		reverse_proxy web:3000
+# 	}
+# }
