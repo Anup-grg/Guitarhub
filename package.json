@@ -22,14 +22,14 @@
     "db:migrate": "npm run db:migrate -w api",
     "db:seed": "npm run db:seed -w api",
     "db:studio": "npm run db:studio -w api",
-    "prepare": "is-ci || husky init || true"
+    "prepare": "is-ci || husky"
   },
   "lint-staged": {
     "apps/api/**/*.{ts,tsx,js,mjs}": [
-      "eslint --fix"
+      "eslint --fix --config apps/api/eslint.config.mjs"
     ],
     "apps/web/**/*.{ts,tsx,js,mjs}": [
-      "eslint --fix"
+      "eslint --fix --config apps/web/eslint.config.mjs"
     ],
     "*.{json,md,yml,yaml}": [
       "prettier --write"
