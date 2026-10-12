@@ -242,7 +242,7 @@ Accessibility remediation to WCAG 2.1 AA core flows (SRS NFR-7/§2.10), the defe
 - **8 high remain, all in dev/build tooling with no non-breaking fix** (accepted, documented):
   - `braces`/`micromatch`/`fast-glob`/`@next/eslint-plugin-next`/`eslint-config-next` chain (ESLint tooling only — never shipped)
   - `deepmerge-ts`/`@prisma/config`/`prisma` 6.19.3 CLI chain (listed even with `--omit=dev`; the generated `@prisma/client@6.19.3` runtime is **not** flagged)
-- Environment note: `apps/web` is a standalone npm project (it owns `apps/web/package-lock.json` while `eslint-config-next` hoists to the root), so `next@16.4.0` was provisioned at the root via `npm install --no-save next@16.4.0` so the hoisted parser can resolve `next/dist/compiled/babel/eslint-parser`. Re-run that (or `npm install` inside `apps/web`) if a root `npm install` prunes it and web lint reports the missing parser again
+- Environment note: the hoisted `eslint-config-next` parser resolves `next/dist/compiled/babel/eslint-parser` from the root `node_modules`. Earlier this relied on a `npm install --no-save next@16.4.0` workaround because a stray `apps/web/package-lock.json` (a second lockfile inside the workspace) created a nested install that broke hoisting. Fixed by pinning `next@16.4.0` as a root devDependency and removing the stray `apps/web/package-lock.json`, so a single root `package-lock.json` governs the tree; the workaround is no longer needed
 
 ### Verification
 
