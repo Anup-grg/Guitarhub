@@ -58,7 +58,13 @@ const newPreset = {
   pedal: { slug: "fractal-fm3", brand: "Fractal", model: "FM3" },
 };
 
-const pedal = { id: "pedal_1", brand: "Boss", model: "GT-1000", slug: "boss-gt1000", presetCount: 1 };
+const pedal = {
+  id: "pedal_1",
+  brand: "Boss",
+  model: "GT-1000",
+  slug: "boss-gt1000",
+  presetCount: 1,
+};
 
 beforeEach(() => {
   fetchMock.mockReset();
@@ -66,7 +72,9 @@ beforeEach(() => {
   fetchMock.mockImplementation((url: string) => {
     if (url.includes("/pedals")) return Promise.resolve(jsonResponse(200, { pedals: [pedal] }));
     if (url.includes("sort=hot")) {
-      return Promise.resolve(jsonResponse(200, { presets: [hotPreset], nextCursor: null, total: 1 }));
+      return Promise.resolve(
+        jsonResponse(200, { presets: [hotPreset], nextCursor: null, total: 1 }),
+      );
     }
     return Promise.resolve(jsonResponse(200, { presets: [newPreset], nextCursor: null, total: 1 }));
   });
@@ -83,6 +91,14 @@ describe("Home", () => {
     expect(screen.getByText("GuitarHub")).toBeTruthy();
     expect(screen.getByText(/Community preset sharing/)).toBeTruthy();
     expect(screen.getByText(/multi-effects pedals/)).toBeTruthy();
+  });
+
+  it("renders the advertisement carousel below the hero", () => {
+    render(<Home />);
+    expect(screen.getByLabelText("Advertisement carousel")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Ad 1" }).getAttribute("href")).toBe(
+      "https://example.com",
+    );
   });
 
   it("exposes browse, pedals and upload navigation", () => {
@@ -112,9 +128,7 @@ describe("Home", () => {
       return Promise.resolve(jsonResponse(200, { presets: [], nextCursor: null, total: 0 }));
     });
     render(<Home />);
-    expect(
-      await screen.findByText("Nothing trending yet — be the first to share."),
-    ).toBeTruthy();
+    expect(await screen.findByText("Nothing trending yet — be the first to share.")).toBeTruthy();
     expect(screen.getByText("No presets published yet.")).toBeTruthy();
     expect(screen.getByLabelText("Search presets")).toBeTruthy();
   });
