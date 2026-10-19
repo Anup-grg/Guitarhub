@@ -19,6 +19,13 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "html"],
+      // Baselines measured 2026-10 (76.6/69.3/72.8/79.2); floors catch regressions.
+      thresholds: {
+        statements: 74,
+        branches: 66,
+        functions: 70,
+        lines: 76,
+      },
       exclude: [
         "**/node_modules/**",
         "**/.next/**",
