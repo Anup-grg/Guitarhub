@@ -51,8 +51,8 @@ describe("api", () => {
       }),
     );
 
-    const err = (await api("/auth/login", { method: "POST", body: {} }).catch((e) =>
-      e,
+    const err = (await api("/auth/login", { method: "POST", body: {} }).catch(
+      (e) => e,
     )) as ApiError;
 
     expect(err).toBeInstanceOf(ApiError);
@@ -71,8 +71,8 @@ describe("api", () => {
       }),
     );
 
-    const err = (await api("/auth/register", { method: "POST", body: {} }).catch((e) =>
-      e,
+    const err = (await api("/auth/register", { method: "POST", body: {} }).catch(
+      (e) => e,
     )) as ApiError;
 
     expect(err.issues).toEqual([{ path: "password", message: "Too short" }]);

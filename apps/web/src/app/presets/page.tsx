@@ -84,13 +84,22 @@ function PresetsContent() {
     listPresets(params)
       .then((data) => {
         if (!cancelled) {
-          setState({ status: "ready", presets: data.presets, nextCursor: data.nextCursor, total: data.total });
+          setState({
+            status: "ready",
+            presets: data.presets,
+            nextCursor: data.nextCursor,
+            total: data.total,
+          });
         }
       })
       .catch((err: unknown) => {
         if (cancelled) return;
         if (err instanceof ApiError) {
-          setState({ status: "error", message: err.message, issues: err.issues.map((i) => i.message) });
+          setState({
+            status: "error",
+            message: err.message,
+            issues: err.issues.map((i) => i.message),
+          });
         } else {
           setState({ status: "error", message: "Something went wrong", issues: [] });
         }
@@ -144,16 +153,18 @@ function PresetsContent() {
           Browse presets
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-          Discover community presets — filter by pedal, section and tags, or search across
-          titles, songs, artists and creators.
+          Discover community presets — filter by pedal, section and tags, or search across titles,
+          songs, artists and creators.
         </p>
 
         <form
           className="mt-8 grid gap-3 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950 sm:grid-cols-2 lg:grid-cols-4"
           onSubmit={(e) => {
             e.preventDefault();
+            const next = pendingQ.trim();
+            if (next === q) return;
             setState({ status: "loading" });
-            setQ(pendingQ.trim());
+            setQ(next);
           }}
         >
           <div className="sm:col-span-2">
@@ -317,17 +328,15 @@ function PresetCard({ preset }: { preset: PresetItem }) {
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-zinc-500 dark:text-zinc-400">
           {preset.tags.length > 0 ? (
-            <span>
-              {preset.tags.map((t) => t.label).join(" · ")}
-            </span>
+            <span>{preset.tags.map((t) => t.label).join(" · ")}</span>
           ) : null}
           <span>
             by {preset.user.displayName}
             {preset.user.verified ? " ✓" : ""}
           </span>
           <span>
-            ▲ {preset.counts.score} · {preset.counts.comments} comments ·{" "}
-            {preset.counts.downloads} downloads
+            ▲ {preset.counts.score} · {preset.counts.comments} comments · {preset.counts.downloads}{" "}
+            downloads
           </span>
         </div>
       </Link>

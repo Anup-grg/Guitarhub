@@ -34,7 +34,8 @@ function mockSettings() {
   fetchMock.mockImplementation((input: unknown, init?: { method?: string }) => {
     const url = String(input);
     const method = init?.method ?? "GET";
-    if (url.endsWith("/me")) return Promise.resolve(jsonResponse(200, { user: selfUser, gear: [] }));
+    if (url.endsWith("/me"))
+      return Promise.resolve(jsonResponse(200, { user: selfUser, gear: [] }));
     if (url.endsWith("/pedals")) return Promise.resolve(jsonResponse(200, { pedals: [] }));
     if (url.endsWith("/sessions")) return Promise.resolve(jsonResponse(200, { sessions: [] }));
     throw new Error(`unexpected request ${method} ${url}`);

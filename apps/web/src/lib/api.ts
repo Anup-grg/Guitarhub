@@ -219,10 +219,16 @@ export async function getPreset(id: string): Promise<PresetDetail> {
 
 export type VoteValue = -1 | 0 | 1;
 
-export type VoteResult = { counts: { up: number; down: number; score: number }; userVote: VoteValue };
+export type VoteResult = {
+  counts: { up: number; down: number; score: number };
+  userVote: VoteValue;
+};
 
 export function votePreset(id: string, value: VoteValue): Promise<VoteResult> {
-  return api<VoteResult>(`/presets/${encodeURIComponent(id)}/vote`, { method: "PUT", body: { value } });
+  return api<VoteResult>(`/presets/${encodeURIComponent(id)}/vote`, {
+    method: "PUT",
+    body: { value },
+  });
 }
 
 export type CommentAuthor = { id: string; displayName: string; verified: boolean };
@@ -253,7 +259,9 @@ export function listComments(
   if (params.cursor) search.set("cursor", params.cursor);
   if (params.limit !== undefined) search.set("limit", String(params.limit));
   const qs = search.toString();
-  return api<CommentListResult>(`/presets/${encodeURIComponent(presetId)}/comments${qs ? `?${qs}` : ""}`);
+  return api<CommentListResult>(
+    `/presets/${encodeURIComponent(presetId)}/comments${qs ? `?${qs}` : ""}`,
+  );
 }
 
 export async function postComment(
@@ -261,10 +269,13 @@ export async function postComment(
   bodyMd: string,
   parentId?: string,
 ): Promise<Comment> {
-  const data = await api<{ comment: Comment }>(`/presets/${encodeURIComponent(presetId)}/comments`, {
-    method: "POST",
-    body: { bodyMd, ...(parentId ? { parentId } : {}) },
-  });
+  const data = await api<{ comment: Comment }>(
+    `/presets/${encodeURIComponent(presetId)}/comments`,
+    {
+      method: "POST",
+      body: { bodyMd, ...(parentId ? { parentId } : {}) },
+    },
+  );
   return data.comment;
 }
 
@@ -285,7 +296,10 @@ export function reportContent(input: {
   targetId: string;
   reason: string;
 }): Promise<{ report: { id: string; status: string } }> {
-  return api<{ report: { id: string; status: string } }>("/reports", { method: "POST", body: input });
+  return api<{ report: { id: string; status: string } }>("/reports", {
+    method: "POST",
+    body: input,
+  });
 }
 
 /* ------------------------------------------------------------------ *
@@ -345,7 +359,14 @@ export async function updateAdminPedal(
 }
 
 export type ReportTarget =
-  | { type: "preset"; id: string; title?: string; status?: string; owner?: { id: string; displayName: string } | null; missing?: boolean }
+  | {
+      type: "preset";
+      id: string;
+      title?: string;
+      status?: string;
+      owner?: { id: string; displayName: string } | null;
+      missing?: boolean;
+    }
   | {
       type: "comment";
       id: string;
@@ -404,7 +425,10 @@ export function banUser(
   return api(`/admin/users/${encodeURIComponent(id)}/ban`, { method: "POST", body: input });
 }
 
-export function unbanUser(id: string, input: StepUp = {}): Promise<{ user: { id: string; banned: boolean } }> {
+export function unbanUser(
+  id: string,
+  input: StepUp = {},
+): Promise<{ user: { id: string; banned: boolean } }> {
   return api(`/admin/users/${encodeURIComponent(id)}/unban`, { method: "POST", body: input });
 }
 

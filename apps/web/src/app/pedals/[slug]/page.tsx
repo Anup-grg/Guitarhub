@@ -68,7 +68,11 @@ function PedalDetailContent() {
         if (err instanceof ApiError && err.status === 404) {
           setState({ status: "notfound" });
         } else if (err instanceof ApiError) {
-          setState({ status: "error", message: err.message, issues: err.issues.map((i) => i.message) });
+          setState({
+            status: "error",
+            message: err.message,
+            issues: err.issues.map((i) => i.message),
+          });
         } else {
           setState({ status: "error", message: "Something went wrong", issues: [] });
         }
@@ -82,7 +86,10 @@ function PedalDetailContent() {
     <div className="flex min-h-screen flex-col bg-zinc-50 font-sans dark:bg-black">
       <SiteHeader />
       <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
-        <Link href="/pedals" className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+        <Link
+          href="/pedals"
+          className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+        >
           ← All pedals
         </Link>
 

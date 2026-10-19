@@ -46,9 +46,7 @@ describe("ForgotPasswordPage", () => {
     expect(screen.getByText(/If an account exists for that address/)).toBeTruthy();
     expect(screen.getByText("ghost@example.com")).toBeTruthy();
 
-    const forgot = fetchMock.mock.calls.find(([url]) =>
-      String(url).endsWith("/password/forgot"),
-    );
+    const forgot = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/password/forgot"));
     expect(forgot?.[1]?.body).toBe('{"email":"ghost@example.com"}');
   });
 

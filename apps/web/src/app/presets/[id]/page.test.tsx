@@ -54,9 +54,7 @@ const detail = {
   },
   user: { id: "u1", displayName: "AxeHandler", verified: true },
   tags: [{ slug: "worship", label: "Worship" }],
-  files: [
-    { role: "primary", size: 131072, ext: "hlx", contentHash: "abcdef1234567890" },
-  ],
+  files: [{ role: "primary", size: 131072, ext: "hlx", contentHash: "abcdef1234567890" }],
   counts: { up: 4, down: 1, score: 3, comments: 2, downloads: 9, views: 20 },
   firmwareWarning: "This preset targets firmware 3.70 but your HX Stomp is running 3.50.",
   userVote: 0,
@@ -93,9 +91,9 @@ describe("PresetDetailPage", () => {
     expect(screen.getByTestId("vote-score").textContent).toBe("3");
     expect(screen.getByText(/Ambient take on an old hymn/)).toBeTruthy();
     const songLine = screen.getByText(
-  (content: string, el: Element | null) => el?.tagName === "P" && content.includes("Song:"),
-);
-expect(songLine.textContent).toBe("Song: Amazing Grace — Trad.");
+      (content: string, el: Element | null) => el?.tagName === "P" && content.includes("Song:"),
+    );
+    expect(songLine.textContent).toBe("Song: Amazing Grace — Trad.");
     expect(screen.getByText(/How to import/)).toBeTruthy();
   });
 
@@ -119,6 +117,8 @@ expect(songLine.textContent).toBe("Song: Amazing Grace — Trad.");
     );
     render(<PresetDetailPage />);
     expect(await screen.findByRole("heading", { name: "Preset not found" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Browse presets" }).getAttribute("href")).toBe("/presets");
+    expect(screen.getByRole("link", { name: "Browse presets" }).getAttribute("href")).toBe(
+      "/presets",
+    );
   });
 });

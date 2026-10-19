@@ -36,9 +36,7 @@ beforeEach(() => {
     if (String(url).endsWith("/me")) {
       return Promise.resolve(jsonResponse(401, { code: "UNAUTHORIZED" }));
     }
-    return Promise.resolve(
-      jsonResponse(201, { user: { id: "u1", displayName: "New" } }),
-    );
+    return Promise.resolve(jsonResponse(201, { user: { id: "u1", displayName: "New" } }));
   });
 });
 

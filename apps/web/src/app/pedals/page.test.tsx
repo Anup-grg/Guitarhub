@@ -62,9 +62,9 @@ describe("PedalsPage", () => {
     expect(screen.getByText("3 presets")).toBeTruthy();
     expect(screen.getByText("Quad Cortex")).toBeTruthy();
     expect(screen.getByText("Cortex Cloud link")).toBeTruthy();
-    expect(
-      screen.getByRole("link", { name: /HX Stomp/ }).getAttribute("href"),
-    ).toBe("/pedals/line6-hx-stomp");
+    expect(screen.getByRole("link", { name: /HX Stomp/ }).getAttribute("href")).toBe(
+      "/pedals/line6-hx-stomp",
+    );
   });
 
   it("shows an error when the catalog cannot be loaded", async () => {
@@ -91,8 +91,6 @@ describe("PedalsPage", () => {
     });
 
     render(<PedalsPage />);
-    await waitFor(() =>
-      expect(screen.getByText("No pedals in the catalog yet.")).toBeTruthy(),
-    );
+    await waitFor(() => expect(screen.getByText("No pedals in the catalog yet.")).toBeTruthy());
   });
 });

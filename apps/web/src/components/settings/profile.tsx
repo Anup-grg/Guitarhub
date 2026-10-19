@@ -85,7 +85,11 @@ export function ProfileSection({
   }
 
   function setFirmware(pedalId: string, firmwareVersion: string) {
-    setGear(gear.map((g) => (g.pedalId === pedalId ? { ...g, firmwareVersion: firmwareVersion.trim() || null } : g)));
+    setGear(
+      gear.map((g) =>
+        g.pedalId === pedalId ? { ...g, firmwareVersion: firmwareVersion.trim() || null } : g,
+      ),
+    );
     setGearDirty(true);
   }
 
@@ -101,10 +105,14 @@ export function ProfileSection({
         body: {
           displayName,
           bio,
-          avatarUrl,
+          avatarUrl: avatarUrl.trim() ? avatarUrl.trim() : null,
           email,
           links: cleanLinks,
-          ...(gearDirty ? { gear: gear.map((g) => ({ pedalId: g.pedalId, firmwareVersion: g.firmwareVersion })) } : {}),
+          ...(gearDirty
+            ? {
+                gear: gear.map((g) => ({ pedalId: g.pedalId, firmwareVersion: g.firmwareVersion })),
+              }
+            : {}),
           ...(password ? { password } : {}),
         },
       });
@@ -160,7 +168,7 @@ export function ProfileSection({
             id="displayName"
             required
             minLength={2}
-            maxLength={50}
+            maxLength={40}
             className={inputClass}
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -207,7 +215,7 @@ export function ProfileSection({
               <input
                 aria-label={`Link ${index + 1} label`}
                 placeholder="Label (e.g. YouTube)"
-                maxLength={40}
+                maxLength={30}
                 className={inputClass}
                 value={link.label}
                 onChange={(e) => {
@@ -289,7 +297,9 @@ export function ProfileSection({
             </ul>
           ) : (
             <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-              {pedals.length === 0 ? "No pedals in the catalog yet." : "Let everyone know which pedals you use."}
+              {pedals.length === 0
+                ? "No pedals in the catalog yet."
+                : "Let everyone know which pedals you use."}
             </p>
           )}
 

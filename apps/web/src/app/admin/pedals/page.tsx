@@ -95,7 +95,10 @@ function PedalsPanel() {
     }
   }
 
-  async function saveEdit(pedal: AdminPedal, fields: { brand: string; model: string; validationMode: string }) {
+  async function saveEdit(
+    pedal: AdminPedal,
+    fields: { brand: string; model: string; validationMode: string },
+  ) {
     setBusy(true);
     setError(null);
     setMessage(null);
@@ -116,13 +119,30 @@ function PedalsPanel() {
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Add a pedal</h2>
         <form onSubmit={create} className="mt-4 grid gap-4 sm:grid-cols-2">
           <Field label="Brand" htmlFor="brand">
-            <input id="brand" className={inputClass} value={brand} onChange={(e) => setBrand(e.target.value)} required />
+            <input
+              id="brand"
+              className={inputClass}
+              value={brand}
+              onChange={(e) => setBrand(e.target.value)}
+              required
+            />
           </Field>
           <Field label="Model" htmlFor="model">
-            <input id="model" className={inputClass} value={model} onChange={(e) => setModel(e.target.value)} required />
+            <input
+              id="model"
+              className={inputClass}
+              value={model}
+              onChange={(e) => setModel(e.target.value)}
+              required
+            />
           </Field>
           <Field label="Validation mode" htmlFor="mode">
-            <select id="mode" className={inputClass} value={validationMode} onChange={(e) => setValidationMode(e.target.value)}>
+            <select
+              id="mode"
+              className={inputClass}
+              value={validationMode}
+              onChange={(e) => setValidationMode(e.target.value)}
+            >
               {VALIDATION_MODES.map((mode) => (
                 <option key={mode} value={mode}>
                   {mode}
@@ -131,7 +151,12 @@ function PedalsPanel() {
             </select>
           </Field>
           <Field label="Extensions" htmlFor="ext" hint="Comma-separated, e.g. .hlx, .hls">
-            <input id="ext" className={inputClass} value={extensions} onChange={(e) => setExtensions(e.target.value)} />
+            <input
+              id="ext"
+              className={inputClass}
+              value={extensions}
+              onChange={(e) => setExtensions(e.target.value)}
+            />
           </Field>
           <div className="sm:col-span-2">
             <Button busy={busy}>Create pedal</Button>
@@ -154,7 +179,12 @@ function PedalsPanel() {
               className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
             >
               {editing === pedal.id ? (
-                <EditRow pedal={pedal} busy={busy} onCancel={() => setEditing(null)} onSave={saveEdit} />
+                <EditRow
+                  pedal={pedal}
+                  busy={busy}
+                  onCancel={() => setEditing(null)}
+                  onSave={saveEdit}
+                />
               ) : (
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -199,7 +229,10 @@ function EditRow({
   pedal: AdminPedal;
   busy: boolean;
   onCancel: () => void;
-  onSave: (pedal: AdminPedal, fields: { brand: string; model: string; validationMode: string }) => void;
+  onSave: (
+    pedal: AdminPedal,
+    fields: { brand: string; model: string; validationMode: string },
+  ) => void;
 }) {
   const [brand, setBrand] = useState(pedal.brand);
   const [model, setModel] = useState(pedal.model);
@@ -207,13 +240,28 @@ function EditRow({
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       <Field label="Brand" htmlFor={`brand-${pedal.id}`}>
-        <input id={`brand-${pedal.id}`} className={inputClass} value={brand} onChange={(e) => setBrand(e.target.value)} />
+        <input
+          id={`brand-${pedal.id}`}
+          className={inputClass}
+          value={brand}
+          onChange={(e) => setBrand(e.target.value)}
+        />
       </Field>
       <Field label="Model" htmlFor={`model-${pedal.id}`}>
-        <input id={`model-${pedal.id}`} className={inputClass} value={model} onChange={(e) => setModel(e.target.value)} />
+        <input
+          id={`model-${pedal.id}`}
+          className={inputClass}
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+        />
       </Field>
       <Field label="Validation mode" htmlFor={`mode-${pedal.id}`}>
-        <select id={`mode-${pedal.id}`} className={inputClass} value={validationMode} onChange={(e) => setValidationMode(e.target.value)}>
+        <select
+          id={`mode-${pedal.id}`}
+          className={inputClass}
+          value={validationMode}
+          onChange={(e) => setValidationMode(e.target.value)}
+        >
           {VALIDATION_MODES.map((mode) => (
             <option key={mode} value={mode}>
               {mode}

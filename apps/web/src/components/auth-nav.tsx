@@ -33,7 +33,11 @@ export default function AuthNav() {
   }
 
   if (state.status === "loading") {
-    return <span className="text-sm text-zinc-400" aria-busy="true">…</span>;
+    return (
+      <span className="text-sm text-zinc-400" aria-busy="true">
+        …
+      </span>
+    );
   }
 
   if (state.status === "anon") {

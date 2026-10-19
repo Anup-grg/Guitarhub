@@ -40,11 +40,7 @@ function LoginForm() {
         body: {
           email,
           password,
-          ...(need2fa
-            ? useRecovery
-              ? { recoveryCode }
-              : { totp }
-            : {}),
+          ...(need2fa ? (useRecovery ? { recoveryCode } : { totp }) : {}),
         },
       });
       router.push("/");

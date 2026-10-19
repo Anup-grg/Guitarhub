@@ -36,7 +36,9 @@ beforeEach(() => {
     if (String(url).endsWith("/me")) {
       return Promise.resolve(jsonResponse(401, { code: "UNAUTHORIZED" }));
     }
-    return Promise.resolve(jsonResponse(401, { code: "INVALID_CREDENTIALS", detail: "Email or password is incorrect" }));
+    return Promise.resolve(
+      jsonResponse(401, { code: "INVALID_CREDENTIALS", detail: "Email or password is incorrect" }),
+    );
   });
 });
 
@@ -90,9 +92,7 @@ describe("LoginPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Sign in" }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
-    const loginCalls = fetchMock.mock.calls.filter(([url]) =>
-      String(url).endsWith("/auth/login"),
-    );
+    const loginCalls = fetchMock.mock.calls.filter(([url]) => String(url).endsWith("/auth/login"));
     expect(loginCalls.at(-1)?.[1]?.body).toContain('"totp":"123456"');
   });
 });

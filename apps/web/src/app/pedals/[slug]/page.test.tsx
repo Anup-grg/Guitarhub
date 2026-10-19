@@ -79,7 +79,9 @@ describe("PedalDetailPage", () => {
       if (String(url).endsWith("/me")) {
         return Promise.resolve(jsonResponse(401, { code: "UNAUTHORIZED" }));
       }
-      return Promise.resolve(jsonResponse(404, { code: "PEDAL_NOT_FOUND", detail: "No such pedal" }));
+      return Promise.resolve(
+        jsonResponse(404, { code: "PEDAL_NOT_FOUND", detail: "No such pedal" }),
+      );
     });
 
     render(<PedalDetailPage />);
@@ -113,9 +115,9 @@ describe("PedalDetailPage", () => {
     const link = await screen.findByRole("link", { name: /Ambient Wash/ });
     expect(link.getAttribute("href")).toBe("/presets/preset_9");
     expect(link.textContent).toContain("general · ▲ 3 · 9 downloads");
-    expect(
-      screen.getByRole("link", { name: /Browse all/ }).getAttribute("href"),
-    ).toBe("/presets?pedal=line6-hx-stomp");
+    expect(screen.getByRole("link", { name: /Browse all/ }).getAttribute("href")).toBe(
+      "/presets?pedal=line6-hx-stomp",
+    );
   });
 
   it("shows an empty message when the pedal has no presets yet", async () => {

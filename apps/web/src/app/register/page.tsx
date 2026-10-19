@@ -98,13 +98,13 @@ export default function RegisterPage() {
           <Field
             label="Password"
             htmlFor="password"
-            hint="At least 10 characters — a passphrase you can remember works well."
+            hint="At least 12 characters — a passphrase you can remember works well."
           >
             <input
               id="password"
               type="password"
               required
-              minLength={10}
+              minLength={12}
               autoComplete="new-password"
               className={inputClass}
               value={password}
@@ -120,7 +120,10 @@ export default function RegisterPage() {
             />
             <span>
               I accept the{" "}
-              <Link href="/legal/terms" className="underline hover:text-zinc-900 dark:hover:text-white">
+              <Link
+                href="/legal/terms"
+                className="underline hover:text-zinc-900 dark:hover:text-white"
+              >
                 Terms of Service
               </Link>
             </span>

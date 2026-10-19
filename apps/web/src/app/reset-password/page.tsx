@@ -49,9 +49,7 @@ function ResetForm() {
   if (done) {
     return (
       <div className="space-y-4">
-        <SuccessBox>
-          Your password has been changed and every device was signed out.
-        </SuccessBox>
+        <SuccessBox>Your password has been changed and every device was signed out.</SuccessBox>
         <Link
           href="/login"
           className="inline-flex rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
@@ -65,12 +63,12 @@ function ResetForm() {
   return (
     <form onSubmit={submit} className="space-y-4">
       {error || issues.length > 0 ? <ErrorBox title={error} issues={issues} /> : null}
-      <Field label="New password" htmlFor="password" hint="At least 10 characters.">
+      <Field label="New password" htmlFor="password" hint="At least 12 characters.">
         <input
           id="password"
           type="password"
           required
-          minLength={10}
+          minLength={12}
           autoComplete="new-password"
           className={inputClass}
           value={password}
@@ -82,7 +80,7 @@ function ResetForm() {
           id="confirm"
           type="password"
           required
-          minLength={10}
+          minLength={12}
           autoComplete="new-password"
           className={inputClass}
           value={confirm}

@@ -117,9 +117,7 @@ async function pickPedalAndFile() {
 }
 
 async function acceptLicense() {
-  await userEvent.click(
-    screen.getByRole("checkbox", { name: /my own work/i }),
-  );
+  await userEvent.click(screen.getByRole("checkbox", { name: /my own work/i }));
 }
 
 beforeEach(() => {
@@ -137,7 +135,9 @@ describe("UploadPage", () => {
     render(<UploadPage />);
     expect(await screen.findByText(/Sign in to upload presets/)).toBeTruthy();
     expect(
-      screen.getAllByRole("link", { name: "Sign in" }).some((a) => a.getAttribute("href") === "/login"),
+      screen
+        .getAllByRole("link", { name: "Sign in" })
+        .some((a) => a.getAttribute("href") === "/login"),
     ).toBe(true);
   });
 
@@ -165,6 +165,7 @@ describe("UploadPage", () => {
     const publish = screen.getByRole("button", { name: "Publish" });
     expect((publish as HTMLButtonElement).disabled).toBe(true);
 
+    await userEvent.type(screen.getByLabelText("Tags"), "clean");
     await acceptLicense();
     expect((publish as HTMLButtonElement).disabled).toBe(false);
     await userEvent.click(publish);
@@ -243,14 +244,13 @@ describe("UploadPage", () => {
     await pickPedalAndFile();
 
     expect(await screen.findByText(/identical published preset/)).toBeTruthy();
+    await userEvent.type(screen.getByLabelText("Tags"), "clean");
     await acceptLicense();
     expect((screen.getByRole("button", { name: "Publish" }) as HTMLButtonElement).disabled).toBe(
       true,
     );
 
-    await userEvent.click(
-      screen.getByRole("checkbox", { name: /forked\/updated version/i }),
-    );
+    await userEvent.click(screen.getByRole("checkbox", { name: /forked\/updated version/i }));
     expect((screen.getByRole("button", { name: "Publish" }) as HTMLButtonElement).disabled).toBe(
       false,
     );
@@ -269,10 +269,7 @@ describe("UploadPage", () => {
     ]);
 
     render(<UploadPage />);
-    await userEvent.selectOptions(
-      await screen.findByLabelText("Pedal"),
-      "neural-quad-cortex",
-    );
+    await userEvent.selectOptions(await screen.findByLabelText("Pedal"), "neural-quad-cortex");
 
     expect(screen.queryByLabelText("Preset file")).toBeNull();
     expect(screen.getByLabelText("Cortex Cloud share URL")).toBeTruthy();
@@ -310,8 +307,7 @@ describe("UploadPage", () => {
       {
         method: "POST",
         path: "/presets",
-        handle: () =>
-          jsonResponse(201, { preset: { id: "p4", title: "Cover", status: "draft" } }),
+        handle: () => jsonResponse(201, { preset: { id: "p4", title: "Cover", status: "draft" } }),
       },
     ]);
 
@@ -342,5 +338,58 @@ describe("UploadPage", () => {
       year: 2020,
       status: "draft",
     });
+  });
+
+  it("keeps Publish disabled until a general preset has a tag", async () => {
+    installRoutes([
+      ...baseRoutes(),
+      uploadSlot,
+      storagePut,
+      inspectOk,
+      {
+        method: "POST",
+        path: "/presets",
+        handle: () =>
+          jsonResponse(201, { preset: { id: "p5", title: "Ambient Wash", status: "published" } }),
+      },
+    ]);
+
+    render(<UploadPage />);
+    await pickPedalAndFile();
+    await screen.findByDisplayValue("Ambient Wash");
+    await acceptLicense();
+
+    const publish = screen.getByRole("button", { name: "Publish" }) as HTMLButtonElement;
+    expect(publish.disabled).toBe(true);
+
+    await userEvent.type(screen.getByLabelText("Tags"), "clean");
+    expect(publish.disabled).toBe(false);
+  });
+
+  it("keeps Publish disabled until a songs preset has a song title and artist", async () => {
+    installRoutes([
+      ...baseRoutes(),
+      uploadSlot,
+      storagePut,
+      inspectOk,
+      {
+        method: "POST",
+        path: "/presets",
+        handle: () => jsonResponse(201, { preset: { id: "p6", title: "Cover", status: "draft" } }),
+      },
+    ]);
+
+    render(<UploadPage />);
+    await pickPedalAndFile();
+    await screen.findByDisplayValue("Ambient Wash");
+    await userEvent.selectOptions(screen.getByLabelText("Section"), "songs");
+    await acceptLicense();
+
+    const publish = screen.getByRole("button", { name: "Publish" }) as HTMLButtonElement;
+    expect(publish.disabled).toBe(true);
+
+    await userEvent.type(screen.getByLabelText("Song title"), "Amazing Grace");
+    await userEvent.type(screen.getByLabelText("Artist"), "Trad.");
+    expect(publish.disabled).toBe(false);
   });
 });

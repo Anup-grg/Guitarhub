@@ -37,9 +37,7 @@ function route() {
     const path = String(url);
     const method = init?.method ?? "GET";
     if (path.endsWith("/me/sessions") && method === "GET") {
-      return Promise.resolve(
-        jsonResponse(200, { sessions: sessionRows.map((s) => ({ ...s })) }),
-      );
+      return Promise.resolve(jsonResponse(200, { sessions: sessionRows.map((s) => ({ ...s })) }));
     }
     if (path.endsWith("/me/sessions") && method === "DELETE") {
       return Promise.resolve(jsonResponse(204, null));
@@ -104,8 +102,7 @@ describe("SessionsSection", () => {
     expect(screen.queryByText("iPhone")).toBeNull();
 
     const deletes = fetchMock.mock.calls.filter(
-      ([u, init]) =>
-        String(u).endsWith("/me/sessions/sess-2") && init?.method === "DELETE",
+      ([u, init]) => String(u).endsWith("/me/sessions/sess-2") && init?.method === "DELETE",
     );
     expect(deletes).toHaveLength(1);
   });
@@ -119,8 +116,7 @@ describe("SessionsSection", () => {
 
     await waitFor(() => expect(onSignedOutAll).toHaveBeenCalledTimes(1));
     const deleteAll = fetchMock.mock.calls.filter(
-      ([u, init]) =>
-        String(u).endsWith("/me/sessions") && init?.method === "DELETE",
+      ([u, init]) => String(u).endsWith("/me/sessions") && init?.method === "DELETE",
     );
     expect(deleteAll).toHaveLength(1);
   });

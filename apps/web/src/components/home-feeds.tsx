@@ -25,7 +25,9 @@ export default function HomeFeeds() {
       listPresets({ sort: "new", limit: 5 }).catch(() => null),
       fetch("/api/v1/pedals")
         .then((r) => (r.ok ? r.json() : { pedals: [] }))
-        .then((d) => d.pedals as { slug: string; brand: string; model: string; presetCount: number }[]),
+        .then(
+          (d) => d.pedals as { slug: string; brand: string; model: string; presetCount: number }[],
+        ),
     ])
       .then(([hot, newest, pedals]) => {
         if (cancelled) return;
@@ -82,7 +84,10 @@ export default function HomeFeeds() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Trending now
           </h2>
-          <Link href="/presets?sort=hot" className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+          <Link
+            href="/presets?sort=hot"
+            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+          >
             See all →
           </Link>
         </div>
@@ -96,7 +101,10 @@ export default function HomeFeeds() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Newest presets
           </h2>
-          <Link href="/presets?sort=new" className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+          <Link
+            href="/presets?sort=new"
+            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+          >
             See all →
           </Link>
         </div>
@@ -110,7 +118,10 @@ export default function HomeFeeds() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             Pedals
           </h2>
-          <Link href="/pedals" className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
+          <Link
+            href="/pedals"
+            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+          >
             Full catalog →
           </Link>
         </div>

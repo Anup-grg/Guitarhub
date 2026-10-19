@@ -64,7 +64,9 @@ beforeEach(() => {
     }
     if (path.endsWith("/admin/pedals") && method === "POST") {
       const body = JSON.parse(String(init!.body));
-      return Promise.resolve(jsonResponse(201, { pedal: { ...pedal(), id: "pedal_new", ...body } }));
+      return Promise.resolve(
+        jsonResponse(201, { pedal: { ...pedal(), id: "pedal_new", ...body } }),
+      );
     }
     if (path.endsWith("/admin/pedals/pedal_1") && method === "PATCH") {
       const body = JSON.parse(String(init!.body));
@@ -90,10 +92,14 @@ describe("AdminPedalsPage", () => {
 
     await waitFor(() => expect(state.enabled).toBe(false));
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/pedals/pedal_1") && (init as { method?: string })?.method === "PATCH",
+      ([url, init]) =>
+        String(url).endsWith("/admin/pedals/pedal_1") &&
+        (init as { method?: string })?.method === "PATCH",
     );
     expect(call).toBeTruthy();
-    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({ enabled: false });
+    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
+      enabled: false,
+    });
   });
 
   it("creates a pedal from the form", async () => {
@@ -107,7 +113,8 @@ describe("AdminPedalsPage", () => {
 
     await waitFor(() => expect(screen.getByRole("status")).toBeTruthy());
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/pedals") && (init as { method?: string })?.method === "POST",
+      ([url, init]) =>
+        String(url).endsWith("/admin/pedals") && (init as { method?: string })?.method === "POST",
     );
     expect(call).toBeTruthy();
     expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
@@ -126,9 +133,13 @@ describe("AdminPedalsPage", () => {
 
     await waitFor(() => expect(state.enabled).toBe(true));
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/pedals/pedal_1") && (init as { method?: string })?.method === "PATCH",
+      ([url, init]) =>
+        String(url).endsWith("/admin/pedals/pedal_1") &&
+        (init as { method?: string })?.method === "PATCH",
     );
-    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({ enabled: true });
+    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
+      enabled: true,
+    });
   });
 
   it("edits an existing pedal through the inline row", async () => {
@@ -145,13 +156,18 @@ describe("AdminPedalsPage", () => {
       expect(
         fetchMock.mock.calls.some(
           ([url, init]) =>
-            String(url).endsWith("/admin/pedals/pedal_1") && (init as { method?: string })?.method === "PATCH",
+            String(url).endsWith("/admin/pedals/pedal_1") &&
+            (init as { method?: string })?.method === "PATCH",
         ),
       ).toBe(true),
     );
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/pedals/pedal_1") && (init as { method?: string })?.method === "PATCH",
+      ([url, init]) =>
+        String(url).endsWith("/admin/pedals/pedal_1") &&
+        (init as { method?: string })?.method === "PATCH",
     );
-    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({ model: "HX Stomp XL" });
+    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
+      model: "HX Stomp XL",
+    });
   });
 });

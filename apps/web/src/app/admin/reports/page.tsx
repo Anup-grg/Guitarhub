@@ -26,7 +26,9 @@ function TargetSummary({ target }: { target: ReportTarget }) {
       <p className="text-sm text-zinc-700 dark:text-zinc-300">
         Preset <span className="font-medium">{target.title}</span>{" "}
         <span className="text-xs uppercase text-zinc-500">({target.status})</span>
-        {target.owner ? <span className="text-zinc-500"> by {target.owner.displayName}</span> : null}
+        {target.owner ? (
+          <span className="text-zinc-500"> by {target.owner.displayName}</span>
+        ) : null}
       </p>
     );
   }
@@ -88,7 +90,8 @@ function ReportsPanel() {
         note: note.trim() || undefined,
         password: password || undefined,
       });
-      setMessage(`Report ${action}d.`);
+      const past = { dismiss: "dismissed", hide: "hidden", remove: "removed" } as const;
+      setMessage(`Report ${past[action]}.`);
       await refresh();
     } catch (err) {
       setError(err instanceof ApiError ? `${err.message} (${err.code})` : "Action failed");
@@ -150,7 +153,11 @@ function ReportsPanel() {
             placeholder="Reason shown to the reporter / in the audit log"
           />
         </Field>
-        <Field label="Confirm password" hint="Required if your step-up window has lapsed." htmlFor="mod-password">
+        <Field
+          label="Confirm password"
+          hint="Required if your step-up window has lapsed."
+          htmlFor="mod-password"
+        >
           <input
             id="mod-password"
             className={inputClass}
@@ -193,20 +200,34 @@ function ReportsPanel() {
                   Reason: {report.reason}
                 </p>
                 {report.reporter ? (
-                  <p className="mt-1 text-xs text-zinc-500">Reported by {report.reporter.displayName}</p>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    Reported by {report.reporter.displayName}
+                  </p>
                 ) : null}
               </div>
             </div>
 
             {report.status === "open" ? (
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button variant="secondary" onClick={() => run(report, "dismiss")} busy={busyId === report.id}>
+                <Button
+                  variant="secondary"
+                  onClick={() => run(report, "dismiss")}
+                  busy={busyId === report.id}
+                >
                   Dismiss
                 </Button>
-                <Button variant="secondary" onClick={() => run(report, "hide")} busy={busyId === report.id}>
+                <Button
+                  variant="secondary"
+                  onClick={() => run(report, "hide")}
+                  busy={busyId === report.id}
+                >
                   Hide content
                 </Button>
-                <Button variant="danger" onClick={() => run(report, "remove")} busy={busyId === report.id}>
+                <Button
+                  variant="danger"
+                  onClick={() => run(report, "remove")}
+                  busy={busyId === report.id}
+                >
                   Remove content
                 </Button>
                 {report.target.owner ? (

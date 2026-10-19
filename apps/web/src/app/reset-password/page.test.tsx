@@ -75,9 +75,7 @@ describe("ResetPasswordPage", () => {
     expect(
       screen.getByText(/Your password has been changed and every device was signed out/),
     ).toBeTruthy();
-    const resetCall = fetchMock.mock.calls.find(([u]) =>
-      String(u).endsWith("/password/reset"),
-    )!;
+    const resetCall = fetchMock.mock.calls.find(([u]) => String(u).endsWith("/password/reset"))!;
     expect(JSON.parse(String(resetCall[1].body))).toEqual({
       token: "reset-token-abc123",
       password: "brand-new-passphrase-9",
@@ -106,8 +104,8 @@ describe("ResetPasswordPage", () => {
 
     expect(screen.getByRole("alert")).toBeTruthy();
     expect(screen.getByText(/missing its token/)).toBeTruthy();
-    expect(
-      fetchMock.mock.calls.some(([u]) => String(u).endsWith("/auth/password/reset")),
-    ).toBe(false);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/auth/password/reset"))).toBe(
+      false,
+    );
   });
 });

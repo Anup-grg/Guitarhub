@@ -258,7 +258,9 @@ function CommentItem({
       ) : (
         <>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            <span className="font-medium text-zinc-700 dark:text-zinc-300">{body.author?.displayName}</span>
+            <span className="font-medium text-zinc-700 dark:text-zinc-300">
+              {body.author?.displayName}
+            </span>
             {body.author?.verified ? " (verified)" : ""} · {formatDate(body.createdAt)}
             {body.editedAt ? " · edited" : ""}
           </p>
@@ -278,7 +280,11 @@ function CommentItem({
       {!body.deleted && mode === "idle" ? (
         <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
           {signedIn && allowReply ? (
-            <button type="button" className="hover:text-zinc-800 dark:hover:text-zinc-200" onClick={() => setMode("reply")}>
+            <button
+              type="button"
+              className="hover:text-zinc-800 dark:hover:text-zinc-200"
+              onClick={() => setMode("reply")}
+            >
               Reply
             </button>
           ) : null}
@@ -308,7 +314,11 @@ function CommentItem({
             reported ? (
               <span>Reported</span>
             ) : (
-              <button type="button" className="hover:text-zinc-800 dark:hover:text-zinc-200" onClick={() => setMode("report")}>
+              <button
+                type="button"
+                className="hover:text-zinc-800 dark:hover:text-zinc-200"
+                onClick={() => setMode("report")}
+              >
                 Report
               </button>
             )
@@ -319,7 +329,13 @@ function CommentItem({
       {mode === "reply" || mode === "edit" || mode === "report" ? (
         <div className="mt-2 space-y-2">
           <textarea
-            aria-label={mode === "reply" ? "Write a reply" : mode === "edit" ? "Edit comment" : "Report reason"}
+            aria-label={
+              mode === "reply"
+                ? "Write a reply"
+                : mode === "edit"
+                  ? "Edit comment"
+                  : "Report reason"
+            }
             className={`${inputClass} min-h-20`}
             maxLength={mode === "report" ? 1000 : MAX_LENGTH}
             value={draft}
@@ -337,7 +353,11 @@ function CommentItem({
             >
               {mode === "reply" ? "Post reply" : mode === "edit" ? "Save" : "Submit report"}
             </Button>
-            <button type="button" className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200" onClick={close}>
+            <button
+              type="button"
+              className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+              onClick={close}
+            >
               Cancel
             </button>
           </div>
@@ -347,7 +367,13 @@ function CommentItem({
   );
 }
 
-function CommentComposer({ presetId, onPosted }: { presetId: string; onPosted: (comment: Comment) => void }) {
+function CommentComposer({
+  presetId,
+  onPosted,
+}: {
+  presetId: string;
+  onPosted: (comment: Comment) => void;
+}) {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

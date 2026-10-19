@@ -10,8 +10,8 @@ export default function CommunityGuidelinesPage() {
 
       <section className="mt-6 space-y-3">
         <p>
-          GuitarHub works when players help each other. These guidelines apply to presets,
-          comments, votes, display names and profiles.
+          GuitarHub works when players help each other. These guidelines apply to presets, comments,
+          votes, display names and profiles.
         </p>
 
         <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">Be constructive</h2>

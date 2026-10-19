@@ -59,9 +59,7 @@ describe("VerifyEmailPage", () => {
 
     expect(await screen.findByRole("status")).toBeTruthy();
     expect(screen.getByText(/Your email address is confirmed/)).toBeTruthy();
-    const verify = fetchMock.mock.calls.find(([u]) =>
-      String(u).endsWith("/auth/verify-email"),
-    )!;
+    const verify = fetchMock.mock.calls.find(([u]) => String(u).endsWith("/auth/verify-email"))!;
     expect(JSON.parse(String(verify[1].body))).toEqual({ token: "verify-token-abc123" });
   });
 
@@ -101,9 +99,9 @@ describe("VerifyEmailPage", () => {
     await userEvent.click(resend);
 
     expect(await screen.findByText("Confirmation email sent again.")).toBeTruthy();
-    expect(
-      fetchMock.mock.calls.some(([u]) => String(u).endsWith("/verify-email/resend")),
-    ).toBe(true);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).endsWith("/verify-email/resend"))).toBe(
+      true,
+    );
   });
 
   it("points signed-out visitors at the sign-in page", async () => {
@@ -117,8 +115,6 @@ describe("VerifyEmailPage", () => {
     expect(await screen.findByText(/to request a new confirmation email/)).toBeTruthy();
     const signInLinks = screen.getAllByRole("link", { name: "Sign in" });
     expect(signInLinks.length).toBeGreaterThan(1);
-    expect(
-      screen.queryByRole("button", { name: "Resend confirmation email" }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Resend confirmation email" })).toBeNull();
   });
 });

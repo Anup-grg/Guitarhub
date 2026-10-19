@@ -42,7 +42,13 @@ const openReport = {
   handledAt: null,
   createdAt: new Date().toISOString(),
   reporter: { id: "r1", displayName: "Reporter" },
-  target: { type: "preset", id: "preset1", title: "Sus preset", status: "published", owner: { id: "owner1", displayName: "Bob" } },
+  target: {
+    type: "preset",
+    id: "preset1",
+    title: "Sus preset",
+    status: "published",
+    owner: { id: "owner1", displayName: "Bob" },
+  },
 };
 
 function counts() {
@@ -68,7 +74,9 @@ beforeEach(() => {
     if (path.endsWith("/me")) return Promise.resolve(jsonResponse(200, { user: admin }));
     if (path.endsWith("/resolve") && method === "POST") {
       state.resolved = true;
-      return Promise.resolve(jsonResponse(200, { report: { id: "rep1", status: "resolved", action: "remove" } }));
+      return Promise.resolve(
+        jsonResponse(200, { report: { id: "rep1", status: "resolved", action: "remove" } }),
+      );
     }
     if (path.endsWith("/ban") && method === "POST") {
       state.banned = true;
@@ -97,9 +105,15 @@ describe("AdminReportsPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Remove content" }));
 
     await waitFor(() => expect(screen.getByRole("status")).toBeTruthy());
-    const call = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/admin/reports/rep1/resolve"));
+    expect(screen.getByRole("status").textContent).toContain("Report removed.");
+    const call = fetchMock.mock.calls.find(([url]) =>
+      String(url).endsWith("/admin/reports/rep1/resolve"),
+    );
     expect(call).toBeTruthy();
-    expect(JSON.parse(String(call![1].body))).toMatchObject({ action: "remove", note: "illegal content" });
+    expect(JSON.parse(String(call![1].body))).toMatchObject({
+      action: "remove",
+      note: "illegal content",
+    });
   });
 
   it("bans the reported content owner", async () => {
@@ -109,7 +123,9 @@ describe("AdminReportsPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Ban Bob" }));
 
     await waitFor(() => expect(state.banned).toBe(true));
-    const call = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/admin/users/owner1/ban"));
+    const call = fetchMock.mock.calls.find(([url]) =>
+      String(url).endsWith("/admin/users/owner1/ban"),
+    );
     expect(call).toBeTruthy();
     expect(JSON.parse(String(call![1].body))).toMatchObject({ type: "hard" });
   });

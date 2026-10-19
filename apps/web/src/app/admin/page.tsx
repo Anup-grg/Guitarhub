@@ -79,8 +79,16 @@ function StatsPanel() {
           value={stats.presets.total}
           sub={`${stats.presets.published} published · ${stats.presets.hidden} hidden`}
         />
-        <Card label="Downloads" value={stats.downloads.total} sub={`${stats.downloads.events} tracked`} />
-        <Card label="Storage" value={formatBytes(stats.storage.bytes)} sub={`${stats.storage.files} files`} />
+        <Card
+          label="Downloads"
+          value={stats.downloads.total}
+          sub={`${stats.downloads.events} tracked`}
+        />
+        <Card
+          label="Storage"
+          value={formatBytes(stats.storage.bytes)}
+          sub={`${stats.storage.files} files`}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -90,7 +98,9 @@ function StatsPanel() {
       </div>
 
       <section>
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Downloads per pedal</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+          Downloads per pedal
+        </h2>
         <div className="mt-3 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-800">
           <table className="w-full text-left text-sm">
             <thead className="bg-zinc-100 text-xs uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">

@@ -15,9 +15,7 @@ type State =
 
 function VerifyBody() {
   const token = useSearchParams().get("token");
-  const [state, setState] = useState<State>(
-    token ? { status: "working" } : { status: "idle" },
-  );
+  const [state, setState] = useState<State>(token ? { status: "working" } : { status: "idle" });
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [resent, setResent] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);

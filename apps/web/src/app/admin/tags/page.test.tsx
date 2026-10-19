@@ -104,10 +104,13 @@ describe("AdminTagsPage", () => {
     await waitFor(() => expect(screen.getByRole("status")).toBeTruthy());
     expect(screen.getByText(/detached from 2 preset/)).toBeTruthy();
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/tags/t1") && (init as { method?: string })?.method === "PATCH",
+      ([url, init]) =>
+        String(url).endsWith("/admin/tags/t1") && (init as { method?: string })?.method === "PATCH",
     );
     expect(call).toBeTruthy();
-    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({ blacklisted: true });
+    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
+      blacklisted: true,
+    });
   });
 
   it("merges a tag into another", async () => {
@@ -121,7 +124,9 @@ describe("AdminTagsPage", () => {
     await waitFor(() => expect(screen.getByText(/Merged/)).toBeTruthy());
     const call = fetchMock.mock.calls.find(([url]) => String(url).endsWith("/admin/tags/t1/merge"));
     expect(call).toBeTruthy();
-    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({ targetTagId: "t2" });
+    expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
+      targetTagId: "t2",
+    });
   });
 
   it("renames a tag through the inline editor", async () => {
@@ -136,7 +141,8 @@ describe("AdminTagsPage", () => {
 
     expect(await screen.findByText(/Renamed to/)).toBeTruthy();
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/tags/t1") && (init as { method?: string })?.method === "PATCH",
+      ([url, init]) =>
+        String(url).endsWith("/admin/tags/t1") && (init as { method?: string })?.method === "PATCH",
     );
     expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
       slug: "crunch",
@@ -155,7 +161,8 @@ describe("AdminTagsPage", () => {
     expect(await screen.findByRole("status")).toBeTruthy();
     expect(screen.getByText(/Created/)).toBeTruthy();
     const call = fetchMock.mock.calls.find(
-      ([url, init]) => String(url).endsWith("/admin/tags") && (init as { method?: string })?.method === "POST",
+      ([url, init]) =>
+        String(url).endsWith("/admin/tags") && (init as { method?: string })?.method === "POST",
     );
     expect(JSON.parse(String((call![1] as { body: string }).body))).toMatchObject({
       slug: "shoegaze",

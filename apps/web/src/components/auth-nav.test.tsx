@@ -52,9 +52,7 @@ describe("AuthNav", () => {
     await userEvent.click(screen.getByText("Sign out"));
 
     await waitFor(() => expect(screen.getByText("Sign in")).toBeTruthy());
-    expect(
-      fetchMock.mock.calls.some(([url]) => String(url).endsWith("/auth/logout")),
-    ).toBe(true);
+    expect(fetchMock.mock.calls.some(([url]) => String(url).endsWith("/auth/logout"))).toBe(true);
   });
 
   it("falls back to signed-out state when the lookup fails", async () => {

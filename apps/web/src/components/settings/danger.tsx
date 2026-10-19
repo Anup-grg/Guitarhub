@@ -91,7 +91,10 @@ export function DangerSection({ onDeleted }: { onDeleted: () => void }) {
           </Field>
 
           {stepUp ? (
-            <StepUpPrompt onConfirm={async (password) => remove(password)} onCancel={() => setStepUp(false)} />
+            <StepUpPrompt
+              onConfirm={async (password) => remove(password)}
+              onCancel={() => setStepUp(false)}
+            />
           ) : (
             <div className="flex gap-3">
               <Button type="button" variant="danger" busy={busy} onClick={() => void remove()}>

@@ -26,7 +26,12 @@ export default function PresetVote({ presetId, score, up, down, userVote, mine, 
     try {
       const next: VoteValue = value === state.userVote ? 0 : value;
       const res = await votePreset(presetId, next);
-      setState({ score: res.counts.score, up: res.counts.up, down: res.counts.down, userVote: res.userVote });
+      setState({
+        score: res.counts.score,
+        up: res.counts.up,
+        down: res.counts.down,
+        userVote: res.userVote,
+      });
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Sign in to vote on presets.");
@@ -55,7 +60,10 @@ export default function PresetVote({ presetId, score, up, down, userVote, mine, 
         >
           ▲
         </button>
-        <span className="min-w-8 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-50" data-testid="vote-score">
+        <span
+          className="min-w-8 text-center text-sm font-semibold text-zinc-900 dark:text-zinc-50"
+          data-testid="vote-score"
+        >
           {state.score}
         </span>
         <button
@@ -78,7 +86,9 @@ export default function PresetVote({ presetId, score, up, down, userVote, mine, 
       </div>
 
       {mine ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">You can’t vote on your own preset.</p>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          You can’t vote on your own preset.
+        </p>
       ) : null}
 
       {!signedIn && !mine ? (

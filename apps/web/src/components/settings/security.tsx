@@ -8,7 +8,13 @@ import { StepUpPrompt } from "./step-up";
 
 type Setup = { secret: string; uri: string };
 
-export function SecuritySection({ user, onChange }: { user: SelfUser; onChange: (u: SelfUser) => void }) {
+export function SecuritySection({
+  user,
+  onChange,
+}: {
+  user: SelfUser;
+  onChange: (u: SelfUser) => void;
+}) {
   const [identities, setIdentities] = useState<IdentityInfo[] | null>(null);
 
   useEffect(() => {
@@ -78,13 +84,13 @@ function PasswordChange() {
             onChange={(e) => setCurrent(e.target.value)}
           />
         </Field>
-        <Field label="New password" htmlFor="new-password" hint="At least 10 characters.">
+        <Field label="New password" htmlFor="new-password" hint="At least 12 characters.">
           <input
             id="new-password"
             type="password"
             autoComplete="new-password"
             required
-            minLength={10}
+            minLength={12}
             className={inputClass}
             value={next}
             onChange={(e) => setNext(e.target.value)}
@@ -96,7 +102,7 @@ function PasswordChange() {
             type="password"
             autoComplete="new-password"
             required
-            minLength={10}
+            minLength={12}
             className={inputClass}
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
@@ -192,8 +198,8 @@ function TwoFactor({ user, onChange }: { user: SelfUser; onChange: (u: SelfUser)
           Recovery codes
         </h3>
         <SuccessBox>
-          Two-factor authentication is on. Save these codes somewhere safe — each one works once
-          if you lose your authenticator. They will not be shown again.
+          Two-factor authentication is on. Save these codes somewhere safe — each one works once if
+          you lose your authenticator. They will not be shown again.
         </SuccessBox>
         <div className="grid max-w-md grid-cols-2 gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-3 font-mono text-sm text-zinc-800 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200">
           {recoveryCodes.map((c) => (
@@ -270,14 +276,12 @@ function TwoFactor({ user, onChange }: { user: SelfUser; onChange: (u: SelfUser)
             Two-factor authentication is on.
           </p>
           {stepUp ? (
-            <StepUpPrompt onConfirm={async (password) => disable(password)} onCancel={() => setStepUp(false)} />
+            <StepUpPrompt
+              onConfirm={async (password) => disable(password)}
+              onCancel={() => setStepUp(false)}
+            />
           ) : (
-            <Button
-              type="button"
-              variant="secondary"
-              busy={busy}
-              onClick={() => void disable()}
-            >
+            <Button type="button" variant="secondary" busy={busy} onClick={() => void disable()}>
               Turn off two-factor authentication
             </Button>
           )}

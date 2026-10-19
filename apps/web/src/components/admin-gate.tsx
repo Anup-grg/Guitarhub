@@ -6,10 +6,7 @@ import SiteHeader from "@/components/site-header";
 import { getCurrentUser } from "@/lib/api";
 
 type State =
-  | { status: "loading" }
-  | { status: "anon" }
-  | { status: "forbidden" }
-  | { status: "ready" };
+  { status: "loading" } | { status: "anon" } | { status: "forbidden" } | { status: "ready" };
 
 const ADMIN_LINKS = [
   { href: "/admin", label: "Overview" },

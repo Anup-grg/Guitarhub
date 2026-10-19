@@ -1,9 +1,7 @@
 import { ApiError } from "./api";
 
 export type AttemptResult =
-  | { ok: true }
-  | { ok: false; stepUp: true }
-  | { ok: false; stepUp: false; error: string };
+  { ok: true } | { ok: false; stepUp: true } | { ok: false; stepUp: false; error: string };
 
 /**
  * Runs a write operation and classifies failures: step-up re-authentication is

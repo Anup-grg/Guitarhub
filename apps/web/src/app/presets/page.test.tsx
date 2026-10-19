@@ -68,9 +68,7 @@ beforeEach(() => {
   fetchMock.mockImplementation((url: string) => {
     if (url.includes("/pedals")) return Promise.resolve(jsonResponse(200, { pedals: [pedal] }));
     if (url.includes("/presets")) {
-      return Promise.resolve(
-        jsonResponse(200, { presets: [preset], nextCursor: null, total: 1 }),
-      );
+      return Promise.resolve(jsonResponse(200, { presets: [preset], nextCursor: null, total: 1 }));
     }
     return Promise.resolve(jsonResponse(404, { code: "NOT_FOUND" }));
   });
@@ -138,5 +136,16 @@ describe("PresetsPage", () => {
     expect(await screen.findByText("Second Preset")).toBeTruthy();
     expect(screen.getByText("Crunchy Lead")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Load more presets" })).toBeNull();
+  });
+
+  it("does not get stuck loading when the search query is unchanged", async () => {
+    const user = userEvent.setup();
+    render(<PresetsPage />);
+    await screen.findByText("Crunchy Lead");
+
+    await user.click(screen.getByRole("button", { name: "Search" }));
+
+    expect(screen.queryByText(/Loading presets/)).toBeNull();
+    expect(screen.getByText("Crunchy Lead")).toBeTruthy();
   });
 });

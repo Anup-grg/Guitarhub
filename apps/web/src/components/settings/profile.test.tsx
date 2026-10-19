@@ -38,8 +38,24 @@ const stompGear: GearItem = {
 };
 
 const catalog = [
-  { id: "pedal_stomp", brand: "Line 6", model: "HX Stomp", slug: "line6-hx-stomp", validationMode: "DEEP_JSON", extensions: [".hlx"], presetCount: 1 },
-  { id: "pedal_helix", brand: "Line 6", model: "Helix LT", slug: "line6-helix-lt", validationMode: "DEEP_JSON", extensions: [".hlx"], presetCount: 0 },
+  {
+    id: "pedal_stomp",
+    brand: "Line 6",
+    model: "HX Stomp",
+    slug: "line6-hx-stomp",
+    validationMode: "DEEP_JSON",
+    extensions: [".hlx"],
+    presetCount: 1,
+  },
+  {
+    id: "pedal_helix",
+    brand: "Line 6",
+    model: "Helix LT",
+    slug: "line6-helix-lt",
+    validationMode: "DEEP_JSON",
+    extensions: [".hlx"],
+    presetCount: 0,
+  },
 ];
 
 /** Routes GET /pedals + GET /me (gear) and lets the final PATCH be scripted. */
@@ -48,7 +64,8 @@ function mockApi(baseGear: GearItem[], patch?: () => Response) {
     const url = String(input);
     const method = init?.method ?? "GET";
     if (url.endsWith("/pedals")) return Promise.resolve(jsonResponse(200, { pedals: catalog }));
-    if (url.endsWith("/me") && method === "GET") return Promise.resolve(jsonResponse(200, { user, gear: baseGear }));
+    if (url.endsWith("/me") && method === "GET")
+      return Promise.resolve(jsonResponse(200, { user, gear: baseGear }));
     if (url.endsWith("/me") && method === "PATCH") {
       return Promise.resolve(patch ? patch() : jsonResponse(200, { user, gear: baseGear }));
     }
@@ -111,7 +128,9 @@ describe("ProfileSection", () => {
   });
 
   it("cancelling the prompt returns to the plain save button", async () => {
-    mockApi([], () => jsonResponse(403, { code: "STEP_UP_REQUIRED", detail: "Confirm your identity" }));
+    mockApi([], () =>
+      jsonResponse(403, { code: "STEP_UP_REQUIRED", detail: "Confirm your identity" }),
+    );
 
     render(<ProfileSection user={user} onChange={vi.fn()} />);
     await userEvent.click(screen.getByRole("button", { name: "Save profile" }));
@@ -179,14 +198,27 @@ describe("ProfileSection", () => {
     render(<ProfileSection user={user} onChange={vi.fn()} />);
     const remove = await screen.findByRole("button", { name: "Remove Line 6 HX Stomp from gear" });
     await userEvent.click(remove);
-    expect(
-      screen.queryByRole("button", { name: "Remove Line 6 HX Stomp from gear" }),
-    ).toBeNull();
+    expect(screen.queryByRole("button", { name: "Remove Line 6 HX Stomp from gear" })).toBeNull();
 
     await userEvent.click(screen.getByRole("button", { name: "Save profile" }));
     await screen.findByRole("status");
 
     const patchBody = JSON.parse(String(patchCalls()[0]![1].body));
     expect(patchBody.gear).toEqual([]);
+  });
+
+  it("sends a null avatar and matches the API field limits", async () => {
+    mockApi([], () => jsonResponse(200, { user, gear: [] }));
+
+    render(<ProfileSection user={user} onChange={vi.fn()} />);
+
+    expect(screen.getByLabelText("Display name").getAttribute("maxlength")).toBe("40");
+    expect(screen.getByLabelText("Link 1 label").getAttribute("maxlength")).toBe("30");
+
+    await userEvent.click(screen.getByRole("button", { name: "Save profile" }));
+    await screen.findByRole("status");
+
+    const patchBody = JSON.parse(String(patchCalls()[0]![1].body));
+    expect(patchBody.avatarUrl).toBeNull();
   });
 });

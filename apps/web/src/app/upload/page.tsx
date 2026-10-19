@@ -4,12 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import SiteHeader from "@/components/site-header";
-import {
-  api,
-  ApiError,
-  getCurrentUser,
-  type SelfUser,
-} from "@/lib/api";
+import { api, ApiError, getCurrentUser, type SelfUser } from "@/lib/api";
 import { Button, ErrorBox, Field, SuccessBox, inputClass } from "@/components/ui";
 import type { PedalSummary } from "@/lib/api";
 
@@ -78,9 +73,7 @@ function UploadContent() {
   const [pedals, setPedals] = useState<PedalSummary[]>([]);
   const [loadError, setLoadError] = useState<{ message: string; issues: string[] } | null>(null);
 
-  const [selectedSlug, setSelectedSlug] = useState(
-    () => searchParams?.get("pedal") ?? "",
-  );
+  const [selectedSlug, setSelectedSlug] = useState(() => searchParams?.get("pedal") ?? "");
   const [section, setSection] = useState<"general" | "songs">("general");
   const [title, setTitle] = useState("");
   const [descriptionMd, setDescriptionMd] = useState("");
@@ -210,6 +203,8 @@ function UploadContent() {
     licenseAttested &&
     title.trim().length >= 2 &&
     Boolean(firmwareVersion.trim()) &&
+    (section !== "songs" || (songTitle.trim().length > 0 && artist.trim().length > 0)) &&
+    (section !== "general" || parseTags(tagsRaw).length > 0) &&
     (!inspect?.duplicateOf || forkAck) &&
     (cloudOnly ? cloudUrl.trim().length > 0 : Boolean(primary));
 
@@ -317,7 +312,10 @@ function UploadContent() {
             {loadError ? <ErrorBox title={loadError.message} issues={loadError.issues} /> : null}
             {error ? <ErrorBox title={error.message} issues={error.issues} /> : null}
             {busy ? (
-              <p className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400" aria-busy="true">
+              <p
+                className="rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400"
+                aria-busy="true"
+              >
                 {busy}
               </p>
             ) : null}
@@ -391,9 +389,7 @@ function UploadContent() {
                         className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/60 dark:text-amber-200"
                         role="status"
                       >
-                        <p className="font-medium">
-                          An identical published preset already exists.
-                        </p>
+                        <p className="font-medium">An identical published preset already exists.</p>
                         <label className="mt-2 flex items-center gap-2">
                           <input
                             type="checkbox"
@@ -406,7 +402,11 @@ function UploadContent() {
                     ) : null}
                   </div>
                 ) : null}
-                <Field label="Companion IR files (optional)" htmlFor="ir-files" hint="WAV/IR files, up to 4">
+                <Field
+                  label="Companion IR files (optional)"
+                  htmlFor="ir-files"
+                  hint="WAV/IR files, up to 4"
+                >
                   <input
                     ref={irInputRef}
                     id="ir-files"

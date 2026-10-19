@@ -36,7 +36,9 @@ const stats = {
   downloads: { total: 40, events: 25 },
   storage: { bytes: 2048, files: 2 },
   engagement: { comments: 4, votes: 9, openReports: 1 },
-  perPedal: [{ pedalId: "pedal_helix", brand: "Line 6", model: "Helix", presets: 5, downloads: 40 }],
+  perPedal: [
+    { pedalId: "pedal_helix", brand: "Line 6", model: "Helix", presets: 5, downloads: 40 },
+  ],
   recentSignups: [{ id: "u9", displayName: "Newbie", createdAt: new Date().toISOString() }],
 };
 

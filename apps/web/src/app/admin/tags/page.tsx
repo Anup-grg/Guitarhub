@@ -78,7 +78,11 @@ function TagsPanel() {
     setError(null);
     setMessage(null);
     try {
-      await updateAdminTag(tag.id, { slug: fields.slug, label: fields.label, password: password || undefined });
+      await updateAdminTag(tag.id, {
+        slug: fields.slug,
+        label: fields.label,
+        password: password || undefined,
+      });
       setMessage(`Renamed to “${fields.label}”.`);
       await refresh();
     } catch (err) {
@@ -93,7 +97,10 @@ function TagsPanel() {
     setError(null);
     setMessage(null);
     try {
-      const result = await updateAdminTag(tag.id, { blacklisted: true, password: password || undefined });
+      const result = await updateAdminTag(tag.id, {
+        blacklisted: true,
+        password: password || undefined,
+      });
       setMessage(`Blacklisted “${tag.label}” — detached from ${result.detached} preset(s).`);
       await refresh();
     } catch (err) {
@@ -114,7 +121,9 @@ function TagsPanel() {
         targetTagId: mergeTarget,
         password: password || undefined,
       });
-      setMessage(`Merged “${result.merged.sourceSlug}” into “${result.merged.targetSlug}” (${result.merged.moved} moved).`);
+      setMessage(
+        `Merged “${result.merged.sourceSlug}” into “${result.merged.targetSlug}” (${result.merged.moved} moved).`,
+      );
       setMerging(null);
       setMergeTarget("");
       await refresh();
@@ -132,17 +141,31 @@ function TagsPanel() {
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">New tag</h2>
           <form onSubmit={create} className="mt-4 space-y-3">
             <Field label="Slug" htmlFor="tag-slug" hint="lowercase letters, digits and dashes">
-              <input id="tag-slug" className={inputClass} value={newSlug} onChange={(e) => setNewSlug(e.target.value)} required />
+              <input
+                id="tag-slug"
+                className={inputClass}
+                value={newSlug}
+                onChange={(e) => setNewSlug(e.target.value)}
+                required
+              />
             </Field>
             <Field label="Label" htmlFor="tag-label">
-              <input id="tag-label" className={inputClass} value={newLabel} onChange={(e) => setNewLabel(e.target.value)} required />
+              <input
+                id="tag-label"
+                className={inputClass}
+                value={newLabel}
+                onChange={(e) => setNewLabel(e.target.value)}
+                required
+              />
             </Field>
             <Button busy={busy}>Create tag</Button>
           </form>
         </section>
 
         <section className="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Confirm password</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+            Confirm password
+          </h2>
           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             Required for blacklisting and merging if your step-up window has lapsed.
           </p>
@@ -161,12 +184,21 @@ function TagsPanel() {
       {message ? <SuccessBox>{message}</SuccessBox> : null}
 
       {merging ? (
-        <form onSubmit={merge} className="rounded-xl border border-zinc-300 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-950">
+        <form
+          onSubmit={merge}
+          className="rounded-xl border border-zinc-300 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-950"
+        >
           <p className="text-sm text-zinc-700 dark:text-zinc-300">
             Merge <span className="font-medium">{merging.label}</span> into:
           </p>
           <div className="mt-3 flex flex-wrap items-end gap-3">
-            <select className={inputClass} value={mergeTarget} onChange={(e) => setMergeTarget(e.target.value)} required aria-label="Target tag">
+            <select
+              className={inputClass}
+              value={mergeTarget}
+              onChange={(e) => setMergeTarget(e.target.value)}
+              required
+              aria-label="Target tag"
+            >
               <option value="">Choose target…</option>
               {tags
                 .filter((t) => t.id !== merging.id)
@@ -232,10 +264,20 @@ function TagRow({
       {editing ? (
         <div className="flex flex-wrap items-end gap-3">
           <Field label="Slug" htmlFor={`slug-${tag.id}`}>
-            <input id={`slug-${tag.id}`} className={inputClass} value={slug} onChange={(e) => setSlug(e.target.value)} />
+            <input
+              id={`slug-${tag.id}`}
+              className={inputClass}
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
           </Field>
           <Field label="Label" htmlFor={`label-${tag.id}`}>
-            <input id={`label-${tag.id}`} className={inputClass} value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input
+              id={`label-${tag.id}`}
+              className={inputClass}
+              value={label}
+              onChange={(e) => setLabel(e.target.value)}
+            />
           </Field>
           <Button
             busy={busy}

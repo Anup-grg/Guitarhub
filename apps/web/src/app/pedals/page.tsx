@@ -23,7 +23,11 @@ export default function PedalsPage() {
       .catch((err: unknown) => {
         if (cancelled) return;
         if (err instanceof ApiError) {
-          setState({ status: "error", message: err.message, issues: err.issues.map((i) => i.message) });
+          setState({
+            status: "error",
+            message: err.message,
+            issues: err.issues.map((i) => i.message),
+          });
         } else {
           setState({ status: "error", message: "Something went wrong", issues: [] });
         }
@@ -41,8 +45,8 @@ export default function PedalsPage() {
           Pedal catalog
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-400">
-          Pick your pedal to see accepted formats, size limits and how to import presets
-          into your editor.
+          Pick your pedal to see accepted formats, size limits and how to import presets into your
+          editor.
         </p>
 
         {state.status === "loading" ? (
