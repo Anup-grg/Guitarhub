@@ -142,7 +142,13 @@ async function call(method: string, target: string, opts: CallOpts = {}): Promis
       parsed = null;
     }
   }
-  return { status: res.status, headers: res.headers, body: parsed, text, location: res.headers.get("location") };
+  return {
+    status: res.status,
+    headers: res.headers,
+    body: parsed,
+    text,
+    location: res.headers.get("location"),
+  };
 }
 
 async function waitForHealth(timeoutMs = 45_000): Promise<boolean> {
@@ -197,7 +203,12 @@ function registerBody(email: string, password: string): Json {
   };
 }
 
-async function uploadBytes(jar: Jar, pedalSlug: string, filename: string, bytes: Buffer): Promise<string> {
+async function uploadBytes(
+  jar: Jar,
+  pedalSlug: string,
+  filename: string,
+  bytes: Buffer,
+): Promise<string> {
   const req = await call("POST", "/presets/upload-url", {
     jar,
     body: { pedalSlug, filename, size: bytes.length, role: "primary" },
@@ -302,8 +313,14 @@ async function main(): Promise<number> {
     assert(r.status === 200, `status ${r.status}`);
     const pedal = obj(r.body?.pedal, "pedal");
     assert(pedal.validationMode === "DEEP_JSON", `validationMode=${String(pedal.validationMode)}`);
-    assert(Array.isArray(pedal.extensions) && pedal.extensions.includes("hlx"), "extensions missing hlx");
-    assert(typeof pedal.importInstructionsMd === "string" && pedal.importInstructionsMd.length >= 10, "importInstructionsMd missing");
+    assert(
+      Array.isArray(pedal.extensions) && pedal.extensions.includes("hlx"),
+      "extensions missing hlx",
+    );
+    assert(
+      typeof pedal.importInstructionsMd === "string" && pedal.importInstructionsMd.length >= 10,
+      "importInstructionsMd missing",
+    );
     assert(typeof pedal.presetCount === "number", "presetCount missing");
   });
 
@@ -328,7 +345,10 @@ async function main(): Promise<number> {
   const password2 = `Integration#Passw0rd2-${RUN}`;
 
   await check("register: creates account and session", async () => {
-    const r = await call("POST", "/auth/register", { jar: owner, body: registerBody(email, password) });
+    const r = await call("POST", "/auth/register", {
+      jar: owner,
+      body: registerBody(email, password),
+    });
     assert(r.status === 201, `status ${r.status} ${code(r)}`);
     const user = obj(r.body?.user, "user");
     assert(typeof user.id === "string" && user.id.length > 0, "user.id missing");
@@ -378,7 +398,10 @@ async function main(): Promise<number> {
     assert(r.status === 200, `status ${r.status}`);
     const sessions = list(r.body?.sessions, "sessions");
     assert(sessions.length >= 1, "no sessions returned");
-    assert(sessions.some((s) => s.current === true), "current session not flagged");
+    assert(
+      sessions.some((s) => s.current === true),
+      "current session not flagged",
+    );
   });
 
   await check("logout ends the session", async () => {
@@ -411,7 +434,10 @@ async function main(): Promise<number> {
     const oldLogin = await call("POST", "/auth/login", { body: { email, password } });
     assert(oldLogin.status === 401, `old password still accepted (${oldLogin.status})`);
     const fresh = new Jar();
-    const newLogin = await call("POST", "/auth/login", { jar: fresh, body: { email, password: password2 } });
+    const newLogin = await call("POST", "/auth/login", {
+      jar: fresh,
+      body: { email, password: password2 },
+    });
     assert(newLogin.status === 200, `new password login -> ${newLogin.status} ${code(newLogin)}`);
     const me = await call("GET", "/me", { jar: fresh });
     assert(me.status === 200, `GET /me after re-login -> ${me.status}`);
@@ -420,7 +446,10 @@ async function main(): Promise<number> {
 
   if ((await call("GET", "/me", { jar: owner })).status !== 200) {
     const rebuild = new Jar();
-    const r = await call("POST", "/auth/login", { jar: rebuild, body: { email, password: password2 } });
+    const r = await call("POST", "/auth/login", {
+      jar: rebuild,
+      body: { email, password: password2 },
+    });
     if (r.status === 200) owner.adopt(rebuild);
   }
 
@@ -438,7 +467,12 @@ async function main(): Promise<number> {
   await check("upload-url: issues presigned PUT for Line 6 .hlx", async () => {
     const r = await call("POST", "/presets/upload-url", {
       jar: owner,
-      body: { pedalSlug: "line6-hx-stomp", filename: `zephyr-${RUN}.hlx`, size: mainBytes.length, role: "primary" },
+      body: {
+        pedalSlug: "line6-hx-stomp",
+        filename: `zephyr-${RUN}.hlx`,
+        size: mainBytes.length,
+        role: "primary",
+      },
     });
     assert(r.status === 201, `status ${r.status} ${code(r)}`);
     const key = String(r.body?.key ?? "");
@@ -517,7 +551,12 @@ async function main(): Promise<number> {
   await check("upload-url: oversize file rejected 400", async () => {
     const r = await call("POST", "/presets/upload-url", {
       jar: owner,
-      body: { pedalSlug: "line6-hx-stomp", filename: "huge.hlx", size: stompMaxBytes + 1, role: "primary" },
+      body: {
+        pedalSlug: "line6-hx-stomp",
+        filename: "huge.hlx",
+        size: stompMaxBytes + 1,
+        role: "primary",
+      },
     });
     assert(r.status === 400, `status ${r.status}`);
     assert(code(r) === "FILE_SIZE_EXCEEDED", `code ${code(r)}`);
@@ -536,7 +575,12 @@ async function main(): Promise<number> {
   await check("cloud pedals reject file uploads", async () => {
     const r = await call("POST", "/presets/upload-url", {
       jar: owner,
-      body: { pedalSlug: "neural-quad-cortex", filename: `qc-${RUN}.blkx`, size: 100, role: "primary" },
+      body: {
+        pedalSlug: "neural-quad-cortex",
+        filename: `qc-${RUN}.blkx`,
+        size: 100,
+        role: "primary",
+      },
     });
     assert(r.status === 400, `status ${r.status}`);
     assert(code(r) === "CLOUD_LINK_REQUIRED", `code ${code(r)}`);
@@ -641,19 +685,37 @@ async function main(): Promise<number> {
     const structural = await call("GET", "/presets?pedal=line6-hx-stomp&limit=50");
     assert(structural.status === 200, `status ${structural.status}`);
     const rows = list(structural.body?.presets, "presets");
-    assert(rows.every((p) => obj(p.pedal, "pedal").slug === "line6-hx-stomp"), "foreign pedal in results");
-    const pinned = await call("GET", `/presets?pedal=line6-hx-stomp&q=${encodeURIComponent(mainTitle)}&limit=5`);
+    assert(
+      rows.every((p) => obj(p.pedal, "pedal").slug === "line6-hx-stomp"),
+      "foreign pedal in results",
+    );
+    const pinned = await call(
+      "GET",
+      `/presets?pedal=line6-hx-stomp&q=${encodeURIComponent(mainTitle)}&limit=5`,
+    );
     assert(Number(pinned.body?.total) === 1, "title+pinned pedal filter found nothing");
-    const other = await call("GET", `/presets?pedal=neural-quad-cortex&q=${encodeURIComponent(cloudTitle)}&limit=5`);
+    const other = await call(
+      "GET",
+      `/presets?pedal=neural-quad-cortex&q=${encodeURIComponent(cloudTitle)}&limit=5`,
+    );
     assert(Number(other.body?.total) === 1, "cloud preset not found under QC pedal filter");
   });
 
   await check("filter: by section", async () => {
-    const songsMain = await call("GET", `/presets?section=songs&q=${encodeURIComponent(mainTitle)}`);
+    const songsMain = await call(
+      "GET",
+      `/presets?section=songs&q=${encodeURIComponent(mainTitle)}`,
+    );
     assert(Number(songsMain.body?.total) === 1, "songs preset not in songs section");
-    const songsCloud = await call("GET", `/presets?section=songs&q=${encodeURIComponent(cloudTitle)}`);
+    const songsCloud = await call(
+      "GET",
+      `/presets?section=songs&q=${encodeURIComponent(cloudTitle)}`,
+    );
     assert(Number(songsCloud.body?.total) === 0, "general preset leaked into songs section");
-    const generalCloud = await call("GET", `/presets?section=general&q=${encodeURIComponent(cloudTitle)}`);
+    const generalCloud = await call(
+      "GET",
+      `/presets?section=general&q=${encodeURIComponent(cloudTitle)}`,
+    );
     assert(Number(generalCloud.body?.total) === 1, "general preset not in general section");
   });
 
@@ -662,7 +724,10 @@ async function main(): Promise<number> {
     assert(Number(tagged.body?.total) === 1, "tagged preset not found by its tag");
     const wrongTag = await call("GET", `/presets?tag=${tagB}&q=${encodeURIComponent(mainTitle)}`);
     assert(Number(wrongTag.body?.total) === 0, "preset matched a tag it does not carry");
-    const cloudTagged = await call("GET", `/presets?tag=${tagB}&q=${encodeURIComponent(cloudTitle)}`);
+    const cloudTagged = await call(
+      "GET",
+      `/presets?tag=${tagB}&q=${encodeURIComponent(cloudTitle)}`,
+    );
     assert(Number(cloudTagged.body?.total) === 1, "cloud preset not found by its tag");
   });
 
@@ -677,10 +742,16 @@ async function main(): Promise<number> {
     const r = await call("GET", "/presets?sort=new&limit=1");
     assert(r.status === 200, `status ${r.status}`);
     const rows = list(r.body?.presets, "presets");
-    assert(String(rows[0]?.id) === cloudId, `expected newest=${cloudId}, got ${String(rows[0]?.id)}`);
+    assert(
+      String(rows[0]?.id) === cloudId,
+      `expected newest=${cloudId}, got ${String(rows[0]?.id)}`,
+    );
     const wide = await call("GET", "/presets?sort=new&limit=50");
     const ids = list(wide.body?.presets, "presets").map((p) => String(p.id));
-    assert(ids.includes(mainId) && ids.includes(cloudId), "published presets missing from sort=new");
+    assert(
+      ids.includes(mainId) && ids.includes(cloudId),
+      "published presets missing from sort=new",
+    );
     assert(!ids.includes(draftId), "draft appeared in sort=new");
   });
 
@@ -716,7 +787,10 @@ async function main(): Promise<number> {
     assert(preset.songTitle === "Zephyr", "songTitle missing");
     assert(preset.artist === "The Testers", "artist missing");
     const pedal = obj(preset.pedal, "pedal");
-    assert(typeof pedal.importInstructionsMd === "string" && pedal.importInstructionsMd.length >= 10, "importInstructionsMd missing");
+    assert(
+      typeof pedal.importInstructionsMd === "string" && pedal.importInstructionsMd.length >= 10,
+      "importInstructionsMd missing",
+    );
     const views1 = Number(obj(preset.counts, "counts").views);
     const second = await call("GET", `/presets/${mainId}`);
     const views2 = Number(obj(obj(second.body?.preset, "preset").counts, "counts").views);
@@ -739,7 +813,10 @@ async function main(): Promise<number> {
     assert(r.status === 200, `status ${r.status}`);
     const warning = obj(r.body?.preset, "preset").firmwareWarning;
     assert(typeof warning === "string", "firmwareWarning missing");
-    assert(warning.includes("3.70") && warning.includes("3.50"), `warning lacks versions: ${warning}`);
+    assert(
+      warning.includes("3.70") && warning.includes("3.50"),
+      `warning lacks versions: ${warning}`,
+    );
   });
 
   let anonDownloads = 0;
@@ -747,7 +824,10 @@ async function main(): Promise<number> {
     const r = await call("GET", `/presets/${mainId}/download`);
     assert(r.status === 302, `status ${r.status}`);
     assert(r.location, "no Location header");
-    assert(r.headers.get("cache-control") === "no-store", `cache-control=${String(r.headers.get("cache-control"))}`);
+    assert(
+      r.headers.get("cache-control") === "no-store",
+      `cache-control=${String(r.headers.get("cache-control"))}`,
+    );
     const res = await fetch(r.location);
     assert(res.status === 200, `object fetch -> ${res.status}`);
     const bytes = Buffer.from(await res.arrayBuffer());
@@ -759,14 +839,23 @@ async function main(): Promise<number> {
 
   await check("download: counts grow but events dedupe once per day", async () => {
     const after1 = await call("GET", `/presets/${mainId}`);
-    assert(Number(obj(obj(after1.body?.preset, "preset").counts, "counts").downloads) === 1, "downloads !== 1 after first download");
+    assert(
+      Number(obj(obj(after1.body?.preset, "preset").counts, "counts").downloads) === 1,
+      "downloads !== 1 after first download",
+    );
     const second = await call("GET", `/presets/${mainId}/download`);
     assert(second.status === 302, `status ${second.status}`);
     anonDownloads += 1;
     const after2 = await call("GET", `/presets/${mainId}`);
-    assert(Number(obj(obj(after2.body?.preset, "preset").counts, "counts").downloads) === 2, "downloads !== 2 after second download");
+    assert(
+      Number(obj(obj(after2.body?.preset, "preset").counts, "counts").downloads) === 2,
+      "downloads !== 2 after second download",
+    );
     const events = await prisma.downloadEvent.count({ where: { presetId: mainId } });
-    assert(events === 1, `expected 1 DownloadEvent row after ${anonDownloads} anon downloads, got ${events}`);
+    assert(
+      events === 1,
+      `expected 1 DownloadEvent row after ${anonDownloads} anon downloads, got ${events}`,
+    );
   });
 
   await check("download: authed user gets its own event key", async () => {
@@ -804,7 +893,10 @@ async function main(): Promise<number> {
   section("Phase 5 - Engagement (comments, votes, reports, hot ranking)");
 
   await check("setup: member account registered", async () => {
-    const r = await call("POST", "/auth/register", { jar: member, body: registerBody(memberEmail, memberPassword) });
+    const r = await call("POST", "/auth/register", {
+      jar: member,
+      body: registerBody(memberEmail, memberPassword),
+    });
     assert(r.status === 201, `register -> ${r.status} ${code(r)}`);
     createdEmails.push(memberEmail);
     memberId = String(obj(obj(r.body?.user, "user"), "user").id);
@@ -824,7 +916,10 @@ async function main(): Promise<number> {
       where: { id: memberId },
       data: { createdAt: new Date(Date.now() - 11 * 60_000) },
     });
-    const row = await prisma.user.findUnique({ where: { id: memberId }, select: { createdAt: true } });
+    const row = await prisma.user.findUnique({
+      where: { id: memberId },
+      select: { createdAt: true },
+    });
     assert(row && Date.now() - row.createdAt.getTime() >= 11 * 60_000, "member not backdated");
   });
 
@@ -836,7 +931,10 @@ async function main(): Promise<number> {
     assert(r.status === 201, `status ${r.status} ${code(r)}`);
     const comment = obj(obj(r.body?.comment, "comment"), "comment");
     commentId = String(comment.id);
-    assert(String(comment.bodyHtml).includes("<em>amp</em>"), `bodyHtml=${String(comment.bodyHtml)}`);
+    assert(
+      String(comment.bodyHtml).includes("<em>amp</em>"),
+      `bodyHtml=${String(comment.bodyHtml)}`,
+    );
     assert(!String(comment.bodyHtml).includes("<script>"), "script survived sanitization");
     assert(typeof comment.bodyMd === "string" && comment.bodyMd.length > 0, "bodyMd missing");
   });
@@ -875,7 +973,10 @@ async function main(): Promise<number> {
     const comments = list(r.body?.comments, "comments");
     const top = comments.find((c) => String(c.id) === commentId);
     assert(top, "top-level comment missing");
-    assert((list(top.replies, "replies")).some((x) => String(x.id) === replyId), "reply missing from thread");
+    assert(
+      list(top.replies, "replies").some((x) => String(x.id) === replyId),
+      "reply missing from thread",
+    );
   });
 
   await check("vote: upvote returns live counts and userVote", async () => {
@@ -883,7 +984,10 @@ async function main(): Promise<number> {
     assert(r.status === 200, `status ${r.status} ${code(r)}`);
     const counts = obj(r.body?.counts, "counts");
     assert(Number(counts.up) >= 1, `up=${String(counts.up)}`);
-    assert(Number(counts.score) === Number(counts.up) - Number(counts.down), "score is not up-down");
+    assert(
+      Number(counts.score) === Number(counts.up) - Number(counts.down),
+      "score is not up-down",
+    );
     assert(r.body?.userVote === 1, `userVote=${String(r.body?.userVote)}`);
   });
 
@@ -899,14 +1003,20 @@ async function main(): Promise<number> {
     assert(Number(obj(down.body?.counts, "counts").down) >= 1, "down count missing");
     assert(down.body?.userVote === -1, `userVote=${String(down.body?.userVote)}`);
 
-    const cleared = await call("PUT", `/presets/${mainId}/vote`, { jar: member, body: { value: 0 } });
+    const cleared = await call("PUT", `/presets/${mainId}/vote`, {
+      jar: member,
+      body: { value: 0 },
+    });
     assert(cleared.status === 200, `clear -> ${cleared.status} ${code(cleared)}`);
     assert(cleared.body?.userVote === 0, `userVote=${String(cleared.body?.userVote)}`);
   });
 
   await check("hot rank: voting refreshes the cached hotRank", async () => {
     const read = async (): Promise<number> => {
-      const row = await prisma.preset.findUnique({ where: { id: mainId }, select: { hotRank: true } });
+      const row = await prisma.preset.findUnique({
+        where: { id: mainId },
+        select: { hotRank: true },
+      });
       return Number(row?.hotRank ?? Number.NaN);
     };
     await call("PUT", `/presets/${mainId}/vote`, { jar: member, body: { value: 0 } });
@@ -933,7 +1043,11 @@ async function main(): Promise<number> {
   await check("report: authenticated user reports a preset", async () => {
     const r = await call("POST", "/reports", {
       jar: member,
-      body: { targetType: "preset", targetId: mainId, reason: "Sounds like an unlicensed tone clone" },
+      body: {
+        targetType: "preset",
+        targetId: mainId,
+        reason: "Sounds like an unlicensed tone clone",
+      },
     });
     assert(r.status === 201, `status ${r.status} ${code(r)}`);
     mainReportId = String(obj(obj(r.body?.report, "report"), "report").id);
@@ -943,7 +1057,11 @@ async function main(): Promise<number> {
   await check("report: duplicate open report rejected", async () => {
     const r = await call("POST", "/reports", {
       jar: member,
-      body: { targetType: "preset", targetId: mainId, reason: "Reporting this exact content again" },
+      body: {
+        targetType: "preset",
+        targetId: mainId,
+        reason: "Reporting this exact content again",
+      },
     });
     assert(r.status === 409, `status ${r.status} ${code(r)}`);
     assert(code(r) === "REPORT_DUPLICATE", `code ${code(r)}`);
@@ -957,7 +1075,11 @@ async function main(): Promise<number> {
 
     const missing = await call("POST", "/reports", {
       jar: member,
-      body: { targetType: "preset", targetId: "does-not-exist", reason: "This target does not exist at all" },
+      body: {
+        targetType: "preset",
+        targetId: "does-not-exist",
+        reason: "This target does not exist at all",
+      },
     });
     assert(missing.status === 404, `missing target -> ${missing.status}`);
     assert(code(missing) === "REPORT_TARGET_NOT_FOUND", `code ${code(missing)}`);
@@ -1002,7 +1124,10 @@ async function main(): Promise<number> {
     assert(Number(presets.total) >= 3, `presets.total=${String(presets.total)}`);
     const perPedal = list(r.body?.perPedal, "perPedal");
     assert(perPedal.length >= 28, `perPedal=${perPedal.length}`);
-    assert(perPedal.some((p) => String(p.brand) === "Line 6"), "perPedal missing Line 6");
+    assert(
+      perPedal.some((p) => String(p.brand) === "Line 6"),
+      "perPedal missing Line 6",
+    );
   });
 
   await check("admin: pedal catalog lists every pedal with preset counts", async () => {
@@ -1030,7 +1155,10 @@ async function main(): Promise<number> {
     createdPedalIds.push(adminPedalId);
     assert(String(pedal.slug) === `integration-pedal-${RUN}`, `slug=${String(pedal.slug)}`);
     assert(pedal.enabled === true, "new pedal should be enabled");
-    assert(Array.isArray(pedal.extensions) && pedal.extensions.length === 1, "extensions not stored");
+    assert(
+      Array.isArray(pedal.extensions) && pedal.extensions.length === 1,
+      "extensions not stored",
+    );
 
     const dup = await call("POST", "/admin/pedals", { jar: moderator, body: payload });
     assert(dup.status === 409, `duplicate -> ${dup.status} ${code(dup)}`);
@@ -1045,7 +1173,10 @@ async function main(): Promise<number> {
     assert(r.status === 200, `status ${r.status} ${code(r)}`);
     const pedal = obj(obj(r.body?.pedal, "pedal"), "pedal");
     assert(pedal.enabled === false, "pedal not disabled");
-    assert(String(pedal.validationMode) === "SHALLOW", `validationMode=${String(pedal.validationMode)}`);
+    assert(
+      String(pedal.validationMode) === "SHALLOW",
+      `validationMode=${String(pedal.validationMode)}`,
+    );
   });
 
   await check("admin: reports queue enriches targets and counts", async () => {
@@ -1057,9 +1188,15 @@ async function main(): Promise<number> {
     assert(String(mine.status) === "open", `status=${String(mine.status)}`);
 
     const target = obj(mine.target, "target");
-    assert(String(target.type) === "preset" && String(target.id) === mainId, `target=${JSON.stringify(target)}`);
+    assert(
+      String(target.type) === "preset" && String(target.id) === mainId,
+      `target=${JSON.stringify(target)}`,
+    );
     const ownerRow = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-    assert(String(obj(target.owner, "owner").id) === String(ownerRow?.id), "target owner not enriched");
+    assert(
+      String(obj(target.owner, "owner").id) === String(ownerRow?.id),
+      "target owner not enriched",
+    );
     assert(String(target.title) === mainTitle, `title=${String(target.title)}`);
     assert(String(obj(mine.reporter, "reporter").id) === memberId, "reporter not enriched");
 
@@ -1091,7 +1228,11 @@ async function main(): Promise<number> {
   await check("setup: member reports the cloud preset for moderation", async () => {
     const r = await call("POST", "/reports", {
       jar: member,
-      body: { targetType: "preset", targetId: cloudId, reason: "The linked cloud preset no longer resolves" },
+      body: {
+        targetType: "preset",
+        targetId: cloudId,
+        reason: "The linked cloud preset no longer resolves",
+      },
     });
     assert(r.status === 201, `report -> ${r.status} ${code(r)}`);
     cloudReportId = String(obj(obj(r.body?.report, "report"), "report").id);
@@ -1109,7 +1250,10 @@ async function main(): Promise<number> {
     assert(noPassword.status === 403, `no password -> ${noPassword.status}`);
     assert(code(noPassword) === "STEP_UP_REQUIRED", `code ${code(noPassword)}`);
 
-    const stillPublished = await prisma.preset.findUnique({ where: { id: cloudId }, select: { status: true } });
+    const stillPublished = await prisma.preset.findUnique({
+      where: { id: cloudId },
+      select: { status: true },
+    });
     assert(String(stillPublished?.status) !== "HIDDEN", "preset was hidden without step-up");
   });
 
@@ -1124,7 +1268,10 @@ async function main(): Promise<number> {
       select: { status: true, statusReason: true },
     });
     assert(String(row?.status) === "HIDDEN", `status=${String(row?.status)}`);
-    assert(String(row?.statusReason) === "Cloud link is dead", `reason=${String(row?.statusReason)}`);
+    assert(
+      String(row?.statusReason) === "Cloud link is dead",
+      `reason=${String(row?.statusReason)}`,
+    );
 
     const reported = await call("GET", `/presets/${cloudId}`);
     assert(reported.status === 404, `hidden preset still publicly visible -> ${reported.status}`);
@@ -1185,7 +1332,10 @@ async function main(): Promise<number> {
     assert(blocked.body?.tag?.blacklisted === true, "tag not flagged blacklisted");
 
     const publicAfter = await call("GET", "/tags");
-    assert(!list(publicAfter.body?.tags, "tags").some((t) => String(t.slug) === tagSlugA), "blacklisted tag still public");
+    assert(
+      !list(publicAfter.body?.tags, "tags").some((t) => String(t.slug) === tagSlugA),
+      "blacklisted tag still public",
+    );
 
     const merged = await call("POST", `/admin/tags/${tagIdB}/merge`, {
       jar: moderator,
@@ -1292,7 +1442,9 @@ async function cleanup(): Promise<void> {
     for (const id of userIds) {
       await rm(path.join(STORAGE_DIR, "quarantine", id), { recursive: true, force: true });
     }
-    console.log(`Cleanup: removed ${userIds.length} user(s), ${presets.length} preset(s) and their stored files.`);
+    console.log(
+      `Cleanup: removed ${userIds.length} user(s), ${presets.length} preset(s) and their stored files.`,
+    );
   } catch (err) {
     console.warn("Cleanup failed:", err instanceof Error ? err.message : err);
   } finally {

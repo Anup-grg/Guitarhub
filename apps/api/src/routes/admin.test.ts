@@ -134,13 +134,15 @@ describe("FR-7.1 pedal catalog CRUD", () => {
   });
 
   it("creates a pedal, deriving the slug and applying defaults", async () => {
-    const res = await seedAdmin().post("/api/v1/admin/pedals").send({
-      brand: "Neural DSP",
-      model: "Quad Cortex",
-      validationMode: "CLOUD_LINK",
-      extensions: [],
-      aliases: ["QC"],
-    });
+    const res = await seedAdmin()
+      .post("/api/v1/admin/pedals")
+      .send({
+        brand: "Neural DSP",
+        model: "Quad Cortex",
+        validationMode: "CLOUD_LINK",
+        extensions: [],
+        aliases: ["QC"],
+      });
     expect(res.status).toBe(201);
     expect(res.body.pedal.slug).toBe("neural-dsp-quad-cortex");
     expect(res.body.pedal.maxPresetBytes).toBe(1048576);
@@ -158,12 +160,14 @@ describe("FR-7.1 pedal catalog CRUD", () => {
   });
 
   it("rejects malformed extensions with a validation error", async () => {
-    const res = await seedAdmin().post("/api/v1/admin/pedals").send({
-      brand: "Boss",
-      model: "GT-1000",
-      validationMode: "SHALLOW",
-      extensions: ["tsl"],
-    });
+    const res = await seedAdmin()
+      .post("/api/v1/admin/pedals")
+      .send({
+        brand: "Boss",
+        model: "GT-1000",
+        validationMode: "SHALLOW",
+        extensions: ["tsl"],
+      });
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("VALIDATION_ERROR");
   });
@@ -337,9 +341,13 @@ describe("FR-7.2 moderation queue", () => {
   it("404s for an unknown report or a vanished target", async () => {
     seedQueue();
     const agent = seedAdmin({ stepUp: true });
-    expect((await agent.post("/api/v1/admin/reports/nope/resolve").send({ action: "dismiss" })).status).toBe(404);
+    expect(
+      (await agent.post("/api/v1/admin/reports/nope/resolve").send({ action: "dismiss" })).status,
+    ).toBe(404);
     fakePrisma.tables.preset.length = 0;
-    const gone = await agent.post("/api/v1/admin/reports/rep_preset/resolve").send({ action: "hide" });
+    const gone = await agent
+      .post("/api/v1/admin/reports/rep_preset/resolve")
+      .send({ action: "hide" });
     expect(gone.status).toBe(404);
     expect(gone.body.code).toBe("REPORT_TARGET_NOT_FOUND");
   });
@@ -386,7 +394,9 @@ describe("FR-7.2 moderation queue", () => {
       .post("/api/v1/admin/reports/rep_comment/resolve")
       .send({ action: "hide" });
     expect(res.status).toBe(200);
-    expect(fakePrisma.tables.comment.find((c) => c.id === "comment1")?.deletedAt).toBeInstanceOf(Date);
+    expect(fakePrisma.tables.comment.find((c) => c.id === "comment1")?.deletedAt).toBeInstanceOf(
+      Date,
+    );
   });
 });
 
@@ -401,7 +411,9 @@ describe("FR-7.2 user ban / unban", () => {
     const victim = fakePrisma.tables.user.find((u) => u.id === "victim");
     expect(victim?.banType).toBe("HARD");
     expect(victim?.bannedAt).toBeInstanceOf(Date);
-    expect(fakePrisma.tables.session.find((s) => s.id === "victim-sess")?.revokedAt).toBeInstanceOf(Date);
+    expect(fakePrisma.tables.session.find((s) => s.id === "victim-sess")?.revokedAt).toBeInstanceOf(
+      Date,
+    );
   });
 
   it("shadow-bans a user and hides their published presets", async () => {
@@ -435,26 +447,37 @@ describe("FR-7.2 user ban / unban", () => {
     seedUser("victim", "USER", { bannedAt: new Date() });
     seedUser("admin2", "ADMIN");
     const agent = seedAdmin({ stepUp: true });
-    expect((await agent.post("/api/v1/admin/users/victim/ban").send({ type: "hard", reason: "x" })).status).toBe(409);
+    expect(
+      (await agent.post("/api/v1/admin/users/victim/ban").send({ type: "hard", reason: "x" }))
+        .status,
+    ).toBe(409);
     expect((await agent.post("/api/v1/admin/users/regular1/unban").send({})).status).toBe(409);
-    const self = await agent.post("/api/v1/admin/users/admin1/ban").send({ type: "hard", reason: "x" });
+    const self = await agent
+      .post("/api/v1/admin/users/admin1/ban")
+      .send({ type: "hard", reason: "x" });
     expect(self.status).toBe(400);
     expect(self.body.code).toBe("CANNOT_BAN_SELF");
-    const admin = await agent.post("/api/v1/admin/users/admin2/ban").send({ type: "hard", reason: "x" });
+    const admin = await agent
+      .post("/api/v1/admin/users/admin2/ban")
+      .send({ type: "hard", reason: "x" });
     expect(admin.status).toBe(403);
     expect(admin.body.code).toBe("CANNOT_BAN_ADMIN");
   });
 
   it("requires step-up to ban", async () => {
     seedUser("victim");
-    const res = await seedAdmin().post("/api/v1/admin/users/victim/ban").send({ type: "hard", reason: "x" });
+    const res = await seedAdmin()
+      .post("/api/v1/admin/users/victim/ban")
+      .send({ type: "hard", reason: "x" });
     expect(res.status).toBe(403);
     expect(res.body.code).toBe("STEP_UP_REQUIRED");
   });
 
   it("404s when banning or unbanning an unknown user", async () => {
     const agent = seedAdmin({ stepUp: true });
-    const ban = await agent.post("/api/v1/admin/users/ghost/ban").send({ type: "hard", reason: "x" });
+    const ban = await agent
+      .post("/api/v1/admin/users/ghost/ban")
+      .send({ type: "hard", reason: "x" });
     expect(ban.status).toBe(404);
     expect(ban.body.code).toBe("USER_NOT_FOUND");
     const unban = await agent.post("/api/v1/admin/users/ghost/unban").send({});
@@ -495,9 +518,24 @@ describe("FR-7.3 stats dashboard", () => {
       firmwareVersion: "3.7",
       status: "DRAFT",
     });
-    fakePrisma.seed("presetFile", { id: "f1", presetId: "p1", presetVersion: 1, role: "PRIMARY", storageKey: "k", contentHash: "h", size: 2048, ext: ".hlx" });
+    fakePrisma.seed("presetFile", {
+      id: "f1",
+      presetId: "p1",
+      presetVersion: 1,
+      role: "PRIMARY",
+      storageKey: "k",
+      contentHash: "h",
+      size: 2048,
+      ext: ".hlx",
+    });
     fakePrisma.seed("vote", { userId: "regular1", presetId: "p1", value: 1 });
-    fakePrisma.seed("comment", { id: "c1", presetId: "p1", userId: "regular1", bodyMd: "nice", bodyHtml: "<p>nice</p>" });
+    fakePrisma.seed("comment", {
+      id: "c1",
+      presetId: "p1",
+      userId: "regular1",
+      bodyMd: "nice",
+      bodyHtml: "<p>nice</p>",
+    });
 
     const res = await seedAdmin().get("/api/v1/admin/stats");
     expect(res.status).toBe(200);
@@ -524,11 +562,15 @@ describe("FR-7.4 tag governance", () => {
 
   it("creates a tag and rejects duplicates / invalid slugs", async () => {
     const agent = seedAdmin();
-    expect((await agent.post("/api/v1/admin/tags").send({ slug: "shoegaze", label: "Shoegaze" })).status).toBe(201);
+    expect(
+      (await agent.post("/api/v1/admin/tags").send({ slug: "shoegaze", label: "Shoegaze" })).status,
+    ).toBe(201);
     const dup = await agent.post("/api/v1/admin/tags").send({ slug: "shoegaze", label: "Other" });
     expect(dup.status).toBe(409);
     expect(dup.body.code).toBe("TAG_SLUG_TAKEN");
-    expect((await agent.post("/api/v1/admin/tags").send({ slug: "Bad Slug", label: "x" })).status).toBe(400);
+    expect(
+      (await agent.post("/api/v1/admin/tags").send({ slug: "Bad Slug", label: "x" })).status,
+    ).toBe(400);
   });
 
   it("renames a tag and rejects slug conflicts", async () => {
@@ -614,9 +656,7 @@ describe("FR-7.4 tag governance", () => {
   it("requires step-up for a first-time merge", async () => {
     fakePrisma.seed("tag", { id: "t1", slug: "crunch", label: "Crunch" });
     fakePrisma.seed("tag", { id: "t2", slug: "lead", label: "Lead" });
-    const res = await seedAdmin()
-      .post("/api/v1/admin/tags/t1/merge")
-      .send({ targetTagId: "t2" });
+    const res = await seedAdmin().post("/api/v1/admin/tags/t1/merge").send({ targetTagId: "t2" });
     expect(res.status).toBe(403);
     expect(res.body.code).toBe("STEP_UP_REQUIRED");
     expect(fakePrisma.tables.tag.find((t) => t.id === "t1")).toBeTruthy();

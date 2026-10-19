@@ -119,7 +119,8 @@ export async function fetchProfile(
       },
       signal: AbortSignal.timeout(10_000),
     });
-    if (!res.ok) throw new ApiError(400, "OAUTH_PROFILE_FAILED", "Could not read your provider profile");
+    if (!res.ok)
+      throw new ApiError(400, "OAUTH_PROFILE_FAILED", "Could not read your provider profile");
     return (await res.json()) as Record<string, unknown>;
   };
 

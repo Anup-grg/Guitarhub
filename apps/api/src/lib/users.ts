@@ -2,6 +2,11 @@ import type { User } from "@prisma/client";
 
 export type ProfileLink = { label: string; url: string };
 
+/** Hard bans lock the account; shadow bans stay invisible and only suppress content (FR-7.2). */
+export function isHardBanned(user: Pick<User, "bannedAt" | "banType">): boolean {
+  return Boolean(user.bannedAt) && user.banType !== "SHADOW";
+}
+
 export function normalizeLinks(value: unknown): ProfileLink[] {
   if (!Array.isArray(value)) return [];
   return value.filter(

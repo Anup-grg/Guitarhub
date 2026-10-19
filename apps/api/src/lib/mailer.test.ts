@@ -24,9 +24,7 @@ describe("sendMail", () => {
   it("captures mail in the dev outbox when SMTP is not configured", async () => {
     await sendMail({ to: "ada@example.com", subject: "Hi", text: "hello" });
 
-    expect(outbox).toEqual([
-      { to: "ada@example.com", subject: "Hi", text: "hello" },
-    ]);
+    expect(outbox).toEqual([{ to: "ada@example.com", subject: "Hi", text: "hello" }]);
     expect(createTransportSpy).not.toHaveBeenCalled();
     expect(sendMailSpy).not.toHaveBeenCalled();
   });

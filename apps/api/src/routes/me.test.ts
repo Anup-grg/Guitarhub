@@ -179,6 +179,35 @@ describe("PATCH /api/v1/me", () => {
     const cleared = await agent.patch("/api/v1/me").send({ gear: [] });
     expect(cleared.body.gear).toEqual([]);
   });
+
+  it("deduplicates repeated pedal ids instead of failing", async () => {
+    fakePrisma.seed("pedal", {
+      id: "pedal_helix",
+      brand: "Line 6",
+      model: "Helix",
+      slug: "line6-helix",
+      validationMode: "DEEP_JSON",
+      extensions: [".hlx"],
+    });
+    const agent = await signedInAgent();
+
+    const res = await agent.patch("/api/v1/me").send({
+      gear: [
+        { pedalId: "pedal_helix", firmwareVersion: "3.70" },
+        { pedalId: "pedal_helix", firmwareVersion: "3.71" },
+      ],
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.gear).toHaveLength(1);
+    expect(res.body.gear[0]).toMatchObject({ pedalId: "pedal_helix", firmwareVersion: "3.71" });
+  });
+
+  it("clears the avatar when an empty string is sent", async () => {
+    const agent = await signedInAgent();
+    const res = await agent.patch("/api/v1/me").send({ avatarUrl: "" });
+    expect(res.status).toBe(200);
+    expect(res.body.user.avatarUrl).toBeNull();
+  });
 });
 
 describe("GET/PATCH/DELETE session management", () => {
@@ -295,9 +324,7 @@ describe("linked sign-in methods", () => {
 
     const list = await agent.get("/api/v1/me/identities");
     expect(list.status).toBe(200);
-    expect(list.body.identities).toEqual([
-      expect.objectContaining({ provider: "github" }),
-    ]);
+    expect(list.body.identities).toEqual([expect.objectContaining({ provider: "github" })]);
 
     const res = await agent.delete("/api/v1/me/identities/github");
     expect(res.status).toBe(200);

@@ -7,11 +7,7 @@ vi.mock("./prisma.js", async () => {
 
 import { env } from "../config.js";
 import { outbox } from "./mailer.js";
-import {
-  consumeToken,
-  sendPasswordResetEmail,
-  sendVerificationEmail,
-} from "./mail-tokens.js";
+import { consumeToken, sendPasswordResetEmail, sendVerificationEmail } from "./mail-tokens.js";
 import { fakePrisma } from "../test/fake-prisma.js";
 import { hashToken } from "./tokens.js";
 

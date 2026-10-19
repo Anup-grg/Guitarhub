@@ -90,13 +90,20 @@ function sha256(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-async function readUpload(key: string, userId: string): Promise<{ bytes: Buffer; filename: string }> {
+async function readUpload(
+  key: string,
+  userId: string,
+): Promise<{ bytes: Buffer; filename: string }> {
   if (!quarantineKeyOwnedBy(key, userId)) {
     throw new ApiError(403, "UPLOAD_KEY_NOT_OWNED", "That upload does not belong to you");
   }
   const bytes = await getStorage().get(key);
   if (!bytes) {
-    throw new ApiError(404, "UPLOAD_NOT_FOUND", "That upload no longer exists — upload the file again");
+    throw new ApiError(
+      404,
+      "UPLOAD_NOT_FOUND",
+      "That upload no longer exists — upload the file again",
+    );
   }
   return { bytes, filename: filenameFromKey(key) };
 }
@@ -124,9 +131,7 @@ presetsRouter.post("/upload-url", async (req, res) => {
 
   const ext = fileExt(body.filename);
   const allowed =
-    body.role === "ir"
-      ? [...IR_EXTENSIONS]
-      : pedal.extensions.map((e) => e.toLowerCase());
+    body.role === "ir" ? [...IR_EXTENSIONS] : pedal.extensions.map((e) => e.toLowerCase());
   if (!ext || !allowed.includes(ext)) {
     throw new ApiError(
       400,
@@ -142,7 +147,11 @@ presetsRouter.post("/upload-url", async (req, res) => {
         ? pedal.maxBundleBytes
         : pedal.maxPresetBytes;
   if (body.size > cap) {
-    throw new ApiError(400, "FILE_SIZE_EXCEEDED", `File is larger than the ${cap} byte limit for this pedal`);
+    throw new ApiError(
+      400,
+      "FILE_SIZE_EXCEEDED",
+      `File is larger than the ${cap} byte limit for this pedal`,
+    );
   }
 
   const safeName = body.filename
@@ -176,7 +185,11 @@ presetsRouter.post("/inspect", async (req, res) => {
   const body = await inspectSchema.parseAsync(req.body);
   const pedal = await loadPedal(body.pedalSlug);
   if (pedal.validationMode === "CLOUD_LINK") {
-    throw new ApiError(400, "CLOUD_LINK_REQUIRED", "This pedal shares presets as Cortex Cloud links");
+    throw new ApiError(
+      400,
+      "CLOUD_LINK_REQUIRED",
+      "This pedal shares presets as Cortex Cloud links",
+    );
   }
 
   const { bytes, filename } = await readUpload(body.key, user.id);
@@ -230,22 +243,54 @@ const finalizeSchema = z
   .superRefine((body, ctx) => {
     if (body.section === "songs") {
       if (!body.songTitle) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["songTitle"], message: "Songs presets need a song title" });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["songTitle"],
+          message: "Songs presets need a song title",
+        });
       }
       if (!body.artist) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["artist"], message: "Songs presets need an artist" });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["artist"],
+          message: "Songs presets need an artist",
+        });
       }
     }
     if (body.section === "general" && body.tags.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["tags"], message: "General presets need at least one tag" });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["tags"],
+        message: "General presets need at least one tag",
+      });
     }
     if (body.kind === "cloud_link" && !body.cloudUrl) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["cloudUrl"], message: "A Cortex Cloud URL is required" });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cloudUrl"],
+        message: "A Cortex Cloud URL is required",
+      });
     }
     if (body.kind === "file") {
       const primaries = body.files.filter((f) => f.role === "primary");
       if (primaries.length !== 1) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["files"], message: "Exactly one primary file is required" });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["files"],
+          message: "Exactly one primary file is required",
+        });
+      }
+      const seen = new Set<string>();
+      for (const file of body.files) {
+        if (seen.has(file.key)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["files"],
+            message: "Each uploaded file can only be attached once",
+          });
+          break;
+        }
+        seen.add(file.key);
       }
     }
   });
@@ -290,11 +335,19 @@ async function resolveTags(slugs: string[]): Promise<string[]> {
   const found = new Set(rows.map((r) => r.slug));
   const missing = unique.filter((s) => !found.has(s));
   if (missing.length > 0) {
-    throw new ApiError(400, "TAG_UNKNOWN", `Unknown tag${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}`);
+    throw new ApiError(
+      400,
+      "TAG_UNKNOWN",
+      `Unknown tag${missing.length > 1 ? "s" : ""}: ${missing.join(", ")}`,
+    );
   }
   const blocked = rows.filter((r) => r.blacklisted).map((r) => r.slug);
   if (blocked.length > 0) {
-    throw new ApiError(400, "TAG_BLACKLISTED", `Tag${blocked.length > 1 ? "s" : ""} removed by moderation: ${blocked.join(", ")}`);
+    throw new ApiError(
+      400,
+      "TAG_BLACKLISTED",
+      `Tag${blocked.length > 1 ? "s" : ""} removed by moderation: ${blocked.join(", ")}`,
+    );
   }
   return rows.map((r) => r.id);
 }
@@ -402,9 +455,7 @@ presetsRouter.post("/", async (req, res) => {
     moved.push({ from: file.key, to });
   }
 
-  const primaryFile = primary
-    ? moved.find((m) => m.from === primary.key)
-    : undefined;
+  const primaryFile = primary ? moved.find((m) => m.from === primary.key) : undefined;
 
   const preset = await prisma.preset.create({
     data: {
@@ -419,7 +470,12 @@ presetsRouter.post("/", async (req, res) => {
       album: body.album ?? null,
       year: body.year ?? null,
       firmwareVersion: body.firmwareVersion,
-      kind: body.kind === "cloud_link" ? "CLOUD_LINK" : files.some((f) => f.kind === "bundle") ? "BUNDLE" : "FILE",
+      kind:
+        body.kind === "cloud_link"
+          ? "CLOUD_LINK"
+          : files.some((f) => f.kind === "bundle")
+            ? "BUNDLE"
+            : "FILE",
       cloudUrl,
       contentHash,
       storageKey: primaryFile ? primaryFile.to : null,
@@ -456,9 +512,7 @@ presetsRouter.post("/", async (req, res) => {
     await prisma.presetTag.create({ data: { presetId, tagId } });
   }
 
-  const tagRows = tagIds.length
-    ? await prisma.tag.findMany({ where: { id: { in: tagIds } } })
-    : [];
+  const tagRows = tagIds.length ? await prisma.tag.findMany({ where: { id: { in: tagIds } } }) : [];
 
   await audit({
     actorId: user.id,
@@ -529,7 +583,10 @@ async function recordDownload(preset: Record<string, unknown>, req: Request): Pr
   });
   const clientKey = req.auth
     ? `user:${req.auth.user.id}`
-    : `anon:${createHash("sha256").update(`${clientIp(req)}|${req.headers["user-agent"] ?? ""}`).digest("hex").slice(0, 24)}`;
+    : `anon:${createHash("sha256")
+        .update(`${clientIp(req)}|${req.headers["user-agent"] ?? ""}`)
+        .digest("hex")
+        .slice(0, 24)}`;
   const now = new Date();
   const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   try {
@@ -559,15 +616,23 @@ function ts(value: unknown): number {
   return value instanceof Date ? value.getTime() : Number(new Date(String(value)));
 }
 
-function sortPresets(rows: Record<string, unknown>[], sort: ListSort, scores: Map<string, number>, comments: Map<string, number>): Record<string, unknown>[] {
-  const compareFn: Record<ListSort, (a: Record<string, unknown>, b: Record<string, unknown>) => number> = {
+function sortPresets(
+  rows: Record<string, unknown>[],
+  sort: ListSort,
+  scores: Map<string, number>,
+  comments: Map<string, number>,
+): Record<string, unknown>[] {
+  const compareFn: Record<
+    ListSort,
+    (a: Record<string, unknown>, b: Record<string, unknown>) => number
+  > = {
     hot: (a, b) =>
       hotScore(scores.get(String(b.id)) ?? 0, b.createdAt) -
-        hotScore(scores.get(String(a.id)) ?? 0, a.createdAt) ||
-      ts(b.createdAt) - ts(a.createdAt),
+        hotScore(scores.get(String(a.id)) ?? 0, a.createdAt) || ts(b.createdAt) - ts(a.createdAt),
     new: (a, b) =>
       ts(b.createdAt) - ts(a.createdAt) ||
-      hotScore(scores.get(String(a.id)) ?? 0, a.createdAt) - hotScore(scores.get(String(b.id)) ?? 0, b.createdAt),
+      hotScore(scores.get(String(a.id)) ?? 0, a.createdAt) -
+        hotScore(scores.get(String(b.id)) ?? 0, b.createdAt),
     top: (a, b) =>
       (scores.get(String(b.id)) ?? 0) - (scores.get(String(a.id)) ?? 0) ||
       ts(b.createdAt) - ts(a.createdAt),
@@ -593,7 +658,10 @@ presetsRouter.get("/", async (req, res) => {
   if (query.section) where.section = query.section.toUpperCase();
   if (query.usesIr) where.usesThirdPartyIr = query.usesIr === "true";
 
-  const candidates = (await prisma.preset.findMany({ where })) as unknown as Record<string, unknown>[];
+  const candidates = (await prisma.preset.findMany({ where })) as unknown as Record<
+    string,
+    unknown
+  >[];
   if (candidates.length === 0) {
     res.json({ presets: [], nextCursor: null, total: 0 });
     return;
@@ -603,15 +671,16 @@ presetsRouter.get("/", async (req, res) => {
   const userIds = [...new Set(candidates.map((p) => String(p.userId)))];
   const pedalIds = [...new Set(candidates.map((p) => String(p.pedalId)))];
 
-  const [users, pedalRows, presetTags, tagRows, fileRows, voteRows, commentRows] = await Promise.all([
-    prisma.user.findMany({ where: { id: { in: userIds } } }),
-    prisma.pedal.findMany({ where: { id: { in: pedalIds } } }),
-    prisma.presetTag.findMany({ where: { presetId: { in: candidateIds } } }),
-    prisma.tag.findMany({}),
-    prisma.presetFile.findMany({ where: { presetId: { in: candidateIds } } }),
-    prisma.vote.findMany({ where: { presetId: { in: candidateIds } } }),
-    prisma.comment.findMany({ where: { presetId: { in: candidateIds }, deletedAt: null } }),
-  ]);
+  const [users, pedalRows, presetTags, tagRows, fileRows, voteRows, commentRows] =
+    await Promise.all([
+      prisma.user.findMany({ where: { id: { in: userIds } } }),
+      prisma.pedal.findMany({ where: { id: { in: pedalIds } } }),
+      prisma.presetTag.findMany({ where: { presetId: { in: candidateIds } } }),
+      prisma.tag.findMany({}),
+      prisma.presetFile.findMany({ where: { presetId: { in: candidateIds } } }),
+      prisma.vote.findMany({ where: { presetId: { in: candidateIds } } }),
+      prisma.comment.findMany({ where: { presetId: { in: candidateIds }, deletedAt: null } }),
+    ]);
 
   const userById = new Map(users.map((u) => [String(u.id), u]));
   const pedalById = new Map(pedalRows.map((p) => [String(p.id), p]));
@@ -641,7 +710,9 @@ presetsRouter.get("/", async (req, res) => {
     }
     if (query.verified === "true" || query.verified === "false") {
       const wanted = query.verified === "true";
-      const verified = Boolean((userById.get(String(p.userId)) as { verified?: boolean } | undefined)?.verified);
+      const verified = Boolean(
+        (userById.get(String(p.userId)) as { verified?: boolean } | undefined)?.verified,
+      );
       if (verified !== wanted) return false;
     }
     if (q) {
@@ -669,17 +740,16 @@ presetsRouter.get("/", async (req, res) => {
 
   const scores = new Map<string, number>();
   for (const p of filtered) {
-    const voteRowsForPreset = (voteRows as { presetId: string; value: number }[]).filter((v) => String(v.presetId) === String(p.id));
+    const voteRowsForPreset = (voteRows as { presetId: string; value: number }[]).filter(
+      (v) => String(v.presetId) === String(p.id),
+    );
     const counts = aggregateCounts(String(p.id), voteRowsForPreset, commentCounts, p);
     scores.set(String(p.id), counts.score);
   }
 
   const sorted = sortPresets(filtered, query.sort, scores, commentCounts);
   const start = query.cursor
-    ? Math.max(
-        0,
-        sorted.findIndex((p) => String(p.id) === query.cursor) + 1,
-      )
+    ? Math.max(0, sorted.findIndex((p) => String(p.id) === query.cursor) + 1)
     : 0;
   if (query.cursor && start === 0 && !sorted.some((p) => String(p.id) === query.cursor)) {
     throw new ApiError(400, "INVALID_CURSOR", "That page cursor is no longer valid");
@@ -694,13 +764,20 @@ presetsRouter.get("/", async (req, res) => {
         pedalById.get(String(p.pedalId)) as unknown as PedalRow,
         {
           id: String(p.userId),
-          displayName: String((userById.get(String(p.userId)) as { displayName?: string })?.displayName ?? ""),
+          displayName: String(
+            (userById.get(String(p.userId)) as { displayName?: string })?.displayName ?? "",
+          ),
           verified: Boolean((userById.get(String(p.userId)) as { verified?: boolean })?.verified),
         },
         tagsByPreset.get(String(p.id)) ?? [],
         filesByPreset.get(String(p.id)) ?? [],
       ),
-      counts: aggregateCounts(String(p.id), voteRows as { presetId: string; value: number }[], commentCounts, p),
+      counts: aggregateCounts(
+        String(p.id),
+        voteRows as { presetId: string; value: number }[],
+        commentCounts,
+        p,
+      ),
     })),
     nextCursor: end < sorted.length ? String(page[page.length - 1]?.id ?? "") : null,
     total: sorted.length,
@@ -722,18 +799,21 @@ presetsRouter.get("/:id", async (req, res) => {
   });
   preset.viewCount = Number(preset.viewCount ?? 0) + 1;
 
-  const [pedal, user, presetTags, tagRows, fileRows, voteRows, commentCount, gear] = await Promise.all([
-    prisma.pedal.findUnique({ where: { id: String(preset.pedalId) } }),
-    prisma.user.findUnique({ where: { id: String(preset.userId) } }),
-    prisma.presetTag.findMany({ where: { presetId: preset.id } }),
-    prisma.tag.findMany({}),
-    prisma.presetFile.findMany({ where: { presetId: preset.id } }),
-    prisma.vote.findMany({ where: { presetId: preset.id } }),
-    prisma.comment.count({ where: { presetId: preset.id, deletedAt: null } }),
-    req.auth
-      ? prisma.userGear.findFirst({ where: { userId: req.auth.user.id, pedalId: String(preset.pedalId) } })
-      : Promise.resolve(null),
-  ]);
+  const [pedal, user, presetTags, tagRows, fileRows, voteRows, commentCount, gear] =
+    await Promise.all([
+      prisma.pedal.findUnique({ where: { id: String(preset.pedalId) } }),
+      prisma.user.findUnique({ where: { id: String(preset.userId) } }),
+      prisma.presetTag.findMany({ where: { presetId: preset.id } }),
+      prisma.tag.findMany({}),
+      prisma.presetFile.findMany({ where: { presetId: preset.id } }),
+      prisma.vote.findMany({ where: { presetId: preset.id } }),
+      prisma.comment.count({ where: { presetId: preset.id, deletedAt: null } }),
+      req.auth
+        ? prisma.userGear.findFirst({
+            where: { userId: req.auth.user.id, pedalId: String(preset.pedalId) },
+          })
+        : Promise.resolve(null),
+    ]);
 
   const tagById = new Map(tagRows.map((t) => [String(t.id), t]));
   const tags = (presetTags as { tagId: string }[])
@@ -749,7 +829,9 @@ presetsRouter.get("/:id", async (req, res) => {
   );
 
   const userVote = req.auth
-    ? ((voteRows as { userId: string; value: number }[]).find((v) => String(v.userId) === req.auth!.user.id)?.value ?? 0)
+    ? ((voteRows as { userId: string; value: number }[]).find(
+        (v) => String(v.userId) === req.auth!.user.id,
+      )?.value ?? 0)
     : 0;
 
   let firmwareWarning: string | null = null;
@@ -886,7 +968,8 @@ presetsRouter.get("/:id/comments", async (req, res) => {
   let start = 0;
   if (query.cursor) {
     const index = all.findIndex((c) => String(c.id) === query.cursor);
-    if (index === -1) throw new ApiError(400, "INVALID_CURSOR", "That page cursor is no longer valid");
+    if (index === -1)
+      throw new ApiError(400, "INVALID_CURSOR", "That page cursor is no longer valid");
     start = index + 1;
   }
   const page = all.slice(start, start + query.limit);
@@ -1007,7 +1090,11 @@ presetsRouter.get("/:id/download", async (req, res) => {
   if (req.auth) {
     limit(`download:${req.auth.user.id}`, 100, "Downloads are limited to 100 per hour");
   } else {
-    limit(`download:anon:${clientIp(req)}`, 30, "Downloads are limited to 30 per hour — sign in for more");
+    limit(
+      `download:anon:${clientIp(req)}`,
+      30,
+      "Downloads are limited to 30 per hour — sign in for more",
+    );
   }
 
   await recordDownload(preset as unknown as Record<string, unknown>, req);
@@ -1026,7 +1113,10 @@ presetsRouter.get("/:id/download", async (req, res) => {
   }
 
   const { url } = await getStorage().presignGet(String(file.storageKey), {
-    filename: downloadFilename(preset as unknown as Record<string, unknown>, file as unknown as Record<string, unknown>),
+    filename: downloadFilename(
+      preset as unknown as Record<string, unknown>,
+      file as unknown as Record<string, unknown>,
+    ),
   });
   res.redirect(302, url);
 });

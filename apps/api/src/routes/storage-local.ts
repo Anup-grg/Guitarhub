@@ -18,7 +18,27 @@ export const storageLocalRouter = Router();
  */
 storageLocalRouter.put(
   "/upload/:token",
-  express.raw({ type: () => true, limit: "21mb" }),
+  (req, res, next) => {
+    // Verify before reading a single body byte so a bad token never receives
+    // the payload.
+    const info = verifyLocalUploadToken(String(req.params.token));
+    // The transport cap is the token's cap, not a hard-coded ceiling: pedals
+    // configured above 21 mb must still accept their full allowance, and any
+    // over-cap body surfaces as FILE_SIZE_EXCEEDED rather than a generic code.
+    express.raw({ type: () => true, limit: info.maxBytes })(req, res, (err) => {
+      if (err && (err as { type?: string }).type === "entity.too.large") {
+        next(
+          new ApiError(
+            413,
+            "FILE_SIZE_EXCEEDED",
+            `File is larger than the ${info.maxBytes} byte limit for this pedal`,
+          ),
+        );
+        return;
+      }
+      next(err);
+    });
+  },
   async (req, res) => {
     const info = verifyLocalUploadToken(String(req.params.token));
     const body = req.body;

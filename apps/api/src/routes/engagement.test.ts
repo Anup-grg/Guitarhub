@@ -79,7 +79,9 @@ beforeEach(() => {
 describe("PUT /api/v1/presets/:id/vote", () => {
   it("401s when signed out", async () => {
     const preset = seedPublished();
-    const res = await request(app).put(`/api/v1/presets/${preset.id as string}/vote`).send({ value: 1 });
+    const res = await request(app)
+      .put(`/api/v1/presets/${preset.id as string}/vote`)
+      .send({ value: 1 });
     expect(res.status).toBe(401);
   });
 
@@ -118,7 +120,9 @@ describe("PUT /api/v1/presets/:id/vote", () => {
   it("404s for unpublished or unknown presets", async () => {
     const draft = seedPublished({ status: "DRAFT" });
     const { agent } = await register();
-    const draftRes = await agent.put(`/api/v1/presets/${draft.id as string}/vote`).send({ value: 1 });
+    const draftRes = await agent
+      .put(`/api/v1/presets/${draft.id as string}/vote`)
+      .send({ value: 1 });
     expect(draftRes.status).toBe(404);
     const missing = await agent.put("/api/v1/presets/nope/vote").send({ value: 1 });
     expect(missing.status).toBe(404);
@@ -177,7 +181,9 @@ describe("comments", () => {
     expect(list.body.comments).toHaveLength(1);
     expect(list.body.comments[0].replies).toHaveLength(1);
 
-    const deep = await agent.post(url).send({ bodyMd: "too deep", parentId: reply.body.comment.id });
+    const deep = await agent
+      .post(url)
+      .send({ bodyMd: "too deep", parentId: reply.body.comment.id });
     expect(deep.status).toBe(400);
     expect(deep.body.code).toBe("COMMENT_PARENT_INVALID");
   });
@@ -185,8 +191,12 @@ describe("comments", () => {
   it("enforces the link limit", async () => {
     const preset = seedPublished();
     const { agent } = await register();
-    const bodyMd = Array.from({ length: 5 }, (_, i) => `[l${i}](https://example.com/${i})`).join(" ");
-    const res = await agent.post(`/api/v1/presets/${preset.id as string}/comments`).send({ bodyMd });
+    const bodyMd = Array.from({ length: 5 }, (_, i) => `[l${i}](https://example.com/${i})`).join(
+      " ",
+    );
+    const res = await agent
+      .post(`/api/v1/presets/${preset.id as string}/comments`)
+      .send({ bodyMd });
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("COMMENT_TOO_MANY_LINKS");
   });
@@ -232,7 +242,9 @@ describe("comments", () => {
       createdAt: new Date(),
     });
 
-    const res = await agent.patch(`/api/v1/comments/${comment.id as string}`).send({ bodyMd: "edited *now*" });
+    const res = await agent
+      .patch(`/api/v1/comments/${comment.id as string}`)
+      .send({ bodyMd: "edited *now*" });
     expect(res.status).toBe(200);
     expect(res.body.comment.bodyHtml).toContain("<em>now</em>");
     expect(res.body.comment.editedAt).not.toBeNull();
@@ -251,7 +263,9 @@ describe("comments", () => {
       createdAt: new Date(Date.now() - 60 * 60 * 1000),
     });
 
-    const other = await agent.patch(`/api/v1/comments/${old.id as string}`).send({ bodyMd: "hijack now" });
+    const other = await agent
+      .patch(`/api/v1/comments/${old.id as string}`)
+      .send({ bodyMd: "hijack now" });
     expect(other.status).toBe(403);
     expect(other.body.code).toBe("COMMENT_NOT_OWNED");
 
@@ -264,7 +278,9 @@ describe("comments", () => {
       bodyHtml: "<p>stale</p>",
       createdAt: new Date(Date.now() - 60 * 60 * 1000),
     });
-    const late = await agent.patch(`/api/v1/comments/${mine.id as string}`).send({ bodyMd: "too late now" });
+    const late = await agent
+      .patch(`/api/v1/comments/${mine.id as string}`)
+      .send({ bodyMd: "too late now" });
     expect(late.status).toBe(403);
     expect(late.body.code).toBe("COMMENT_EDIT_WINDOW");
   });
@@ -306,7 +322,11 @@ describe("POST /api/v1/reports", () => {
   it("files a report and dedupes open reports", async () => {
     const preset = seedPublished();
     const { agent } = await register();
-    const payload = { targetType: "preset", targetId: preset.id, reason: "copied from another uploader" };
+    const payload = {
+      targetType: "preset",
+      targetId: preset.id,
+      reason: "copied from another uploader",
+    };
 
     const first = await agent.post("/api/v1/reports").send(payload);
     expect(first.status).toBe(201);

@@ -20,6 +20,7 @@ import {
   sessionCookieName,
 } from "../lib/session.js";
 import { randomToken } from "../lib/tokens.js";
+import { isHardBanned } from "../lib/users.js";
 
 export const oauthRouter = Router();
 
@@ -28,7 +29,10 @@ const PKCE_COOKIE = "gh_oauth_pkce";
 const MODE_COOKIE = "gh_oauth_mode";
 const TTL_MS = 10 * 60 * 1000;
 
-function oauthCookies(res: Response, values: { state: string; verifier: string; mode: "login" | "link" }): void {
+function oauthCookies(
+  res: Response,
+  values: { state: string; verifier: string; mode: "login" | "link" },
+): void {
   const opts = {
     httpOnly: true,
     secure: env.COOKIE_SECURE,
@@ -42,7 +46,12 @@ function oauthCookies(res: Response, values: { state: string; verifier: string; 
 }
 
 function clearOauthCookies(res: Response): void {
-  const opts = { httpOnly: true, secure: env.COOKIE_SECURE, sameSite: "lax" as const, path: "/" as const };
+  const opts = {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite: "lax" as const,
+    path: "/" as const,
+  };
   res.clearCookie(STATE_COOKIE, opts);
   res.clearCookie(PKCE_COOKIE, opts);
   res.clearCookie(MODE_COOKIE, opts);
@@ -199,7 +208,7 @@ oauthRouter.get("/oauth/:provider/callback", async (req, res) => {
     res.redirect(302, loginRedirect({ error: "account_deleted", provider }));
     return;
   }
-  if (user.bannedAt) {
+  if (isHardBanned(user)) {
     res.redirect(302, loginRedirect({ error: "account_banned", provider }));
     return;
   }
@@ -220,4 +229,3 @@ oauthRouter.get("/oauth/:provider/callback", async (req, res) => {
   });
   res.redirect(302, `${env.APP_URL}/`);
 });
-

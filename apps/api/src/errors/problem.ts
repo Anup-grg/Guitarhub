@@ -21,14 +21,17 @@ export function sendProblem(
   detail?: string,
   extra?: Record<string, unknown>,
 ): void {
-  res.status(status).type("application/problem+json").send({
-    type: "about:blank",
-    title,
-    status,
-    code,
-    ...(detail !== undefined ? { detail } : {}),
-    ...extra,
-  });
+  res
+    .status(status)
+    .type("application/problem+json")
+    .send({
+      type: "about:blank",
+      title,
+      status,
+      code,
+      ...(detail !== undefined ? { detail } : {}),
+      ...extra,
+    });
 }
 
 export function notFoundHandler(req: Request, res: Response): void {
@@ -49,12 +52,7 @@ function statusOf(err: unknown): number | undefined {
   return typeof status === "number" && Number.isInteger(status) ? status : undefined;
 }
 
-export function errorHandler(
-  err: unknown,
-  _req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function errorHandler(err: unknown, _req: Request, res: Response, next: NextFunction): void {
   if (res.headersSent) {
     next(err);
     return;

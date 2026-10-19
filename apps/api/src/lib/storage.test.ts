@@ -48,12 +48,9 @@ describe("assertSafeKey", () => {
     "presets/p1/v1/primary.hlx",
     "quarantine/01M4DDCT41S78VDZ1Z8YVTN4YD/01ABC/file.hlx",
     "a",
-  ])(
-    "accepts %s",
-    (key) => {
-      expect(() => assertSafeKey(key)).not.toThrow();
-    },
-  );
+  ])("accepts %s", (key) => {
+    expect(() => assertSafeKey(key)).not.toThrow();
+  });
 
   it.each(["../etc/passwd", "a/../b", "/abs/key", "key with space", "a//b", ""])(
     "rejects %s",
@@ -174,6 +171,34 @@ describe("PUT /api/v1/storage/local/upload/:token", () => {
     expect(res.body.code).toBe("FILE_SIZE_EXCEEDED");
   });
 
+  it("413s chunked payloads above the cap with the same code", async () => {
+    const server = app.listen(0);
+    try {
+      const { port } = server.address() as { port: number };
+      const res = await fetch(
+        `http://127.0.0.1:${port}/api/v1/storage/local/upload/${tokenFor(5)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/octet-stream" },
+          // A stream body forces chunked framing, so the cap can only be
+          // enforced mid-stream rather than from Content-Length.
+          body: new ReadableStream({
+            start(controller) {
+              controller.enqueue(new Uint8Array(64));
+              controller.close();
+            },
+          }),
+          duplex: "half",
+        } as RequestInit & { duplex: "half" },
+      );
+      expect(res.status).toBe(413);
+      expect(((await res.json()) as { code: string }).code).toBe("FILE_SIZE_EXCEEDED");
+    } finally {
+      server.closeAllConnections?.();
+      await new Promise((resolve) => server.close(resolve));
+    }
+  });
+
   it("400s empty uploads", async () => {
     const res = await request(app)
       .put(`/api/v1/storage/local/upload/${tokenFor()}`)
@@ -182,12 +207,22 @@ describe("PUT /api/v1/storage/local/upload/:token", () => {
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("FILE_EMPTY");
   });
+
+  it("accepts bodies above the old hard-coded 21 mb transport ceiling", async () => {
+    const overOldLimit = 21 * 1024 * 1024 + 1;
+    const res = await request(app)
+      .put(`/api/v1/storage/local/upload/${tokenFor(overOldLimit + 16)}`)
+      .set("Content-Type", "application/octet-stream")
+      .send(Buffer.alloc(overOldLimit, 0x41));
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual({ ok: true, size: overOldLimit });
+  });
 });
 
 describe("attachmentDisposition", () => {
   it("emits an ASCII-safe fallback for a plain filename", () => {
     expect(attachmentDisposition("crunch-box.hlx")).toBe(
-      'attachment; filename="crunch-box.hlx"; filename*=UTF-8\'\'crunch-box.hlx',
+      "attachment; filename=\"crunch-box.hlx\"; filename*=UTF-8''crunch-box.hlx",
     );
   });
 
@@ -295,9 +330,7 @@ describe("GET /api/v1/storage/local/download/:token", () => {
     expect(res.headers["content-length"]).toBe(String("preset-bytes".length));
     expect(res.headers["cache-control"]).toBe("public, max-age=31536000, immutable");
     expect(res.headers["x-content-type-options"]).toBe("nosniff");
-    expect(res.headers.etag).toBe(
-      `"${createHash("sha256").update("preset-bytes").digest("hex")}"`,
-    );
+    expect(res.headers.etag).toBe(`"${createHash("sha256").update("preset-bytes").digest("hex")}"`);
     expect(Buffer.from(res.body).toString()).toBe("preset-bytes");
   });
 

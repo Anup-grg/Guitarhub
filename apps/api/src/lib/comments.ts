@@ -39,7 +39,9 @@ export type SerializedComment = {
  * Renders the stored HTML when its sanitizer version matches, otherwise
  * re-renders from Markdown (FR-4.4 defense-in-depth on read).
  */
-export function commentHtml(row: Pick<CommentRow, "bodyMd" | "bodyHtml" | "bodyHtmlVersion">): string {
+export function commentHtml(
+  row: Pick<CommentRow, "bodyMd" | "bodyHtml" | "bodyHtmlVersion">,
+): string {
   if (row.bodyHtmlVersion === MARKDOWN_VERSION) return row.bodyHtml;
   return renderMarkdown(row.bodyMd).html;
 }

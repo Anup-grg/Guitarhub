@@ -116,7 +116,9 @@ describe("POST /api/v1/auth/register", () => {
   });
 
   it("rejects malformed emails", async () => {
-    const res = await request(app).post("/api/v1/auth/register").send(registration({ email: "no" }));
+    const res = await request(app)
+      .post("/api/v1/auth/register")
+      .send(registration({ email: "no" }));
     expect(res.status).toBe(400);
   });
 });
@@ -167,6 +169,18 @@ describe("POST /api/v1/auth/login", () => {
     expect(res.body.code).toBe("ACCOUNT_BANNED");
   });
 
+  it("signs shadow-banned users in so the ban stays invisible (FR-7.2)", async () => {
+    const user = fakePrisma.tables.user[0]!;
+    user.bannedAt = new Date();
+    user.banType = "SHADOW";
+
+    const res = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email: "player@example.com", password: PASSWORD });
+    expect(res.status).toBe(200);
+    expect(res.body.user.email).toBe("player@example.com");
+  });
+
   it("rate limits repeated failures for one account", async () => {
     for (let i = 0; i < 10; i++) {
       await request(app)
@@ -181,6 +195,21 @@ describe("POST /api/v1/auth/login", () => {
     expect(res.body.code).toBe("RATE_LIMITED");
     expect(res.headers["retry-after"]).toBeTruthy();
   });
+
+  it("rate limits credential stuffing across many accounts from one source", async () => {
+    for (let i = 0; i < 50; i++) {
+      await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: `spray-${i}@example.com`, password: "wrong-password-123" })
+        .expect(401);
+    }
+    const res = await request(app)
+      .post("/api/v1/auth/login")
+      .send({ email: "spray-final@example.com", password: "wrong-password-123" });
+    expect(res.status).toBe(429);
+    expect(res.body.code).toBe("RATE_LIMITED");
+    expect(res.headers["retry-after"]).toBeTruthy();
+  }, 20_000);
 });
 
 describe("CSRF origin guard", () => {
@@ -203,9 +232,7 @@ describe("CSRF origin guard", () => {
   });
 
   it("does not apply the guard to GET requests", async () => {
-    const res = await request(app)
-      .get("/api/v1/health")
-      .set("Origin", "https://evil.example");
+    const res = await request(app).get("/api/v1/health").set("Origin", "https://evil.example");
     expect(res.status).toBe(200);
   });
 });
@@ -302,16 +329,12 @@ describe("password change", () => {
 
 describe("sessions: refresh, reuse detection, logout", () => {
   it("rotates the refresh token and detects replay of the old one", async () => {
-    const login = await request(app)
-      .post("/api/v1/auth/register")
-      .send(registration());
+    const login = await request(app).post("/api/v1/auth/register").send(registration());
     const firstRefresh = cookiesOf(login)
       .find((c) => c.startsWith("gh_refresh="))!
       .split(";")[0]!;
 
-    const refreshed = await request(app)
-      .post("/api/v1/auth/refresh")
-      .set("Cookie", firstRefresh);
+    const refreshed = await request(app).post("/api/v1/auth/refresh").set("Cookie", firstRefresh);
     expect(refreshed.status).toBe(200);
     const secondRefresh = cookiesOf(refreshed)
       .find((c) => c.startsWith("gh_refresh="))!
@@ -319,9 +342,7 @@ describe("sessions: refresh, reuse detection, logout", () => {
     expect(secondRefresh).not.toBe(firstRefresh);
 
     // Replaying the rotated-away token revokes the whole session family.
-    const replay = await request(app)
-      .post("/api/v1/auth/refresh")
-      .set("Cookie", firstRefresh);
+    const replay = await request(app).post("/api/v1/auth/refresh").set("Cookie", firstRefresh);
     expect(replay.status).toBe(401);
     expect(replay.body.code).toBe("SESSION_REUSE_DETECTED");
     expect(fakePrisma.tables.session[0]!.revokedAt).toBeInstanceOf(Date);
@@ -423,9 +444,7 @@ describe("two-factor authentication", () => {
     const code = await generate({ secret: setup.body.secret });
     await agent.post("/api/v1/auth/2fa/verify").send({ code }).expect(200);
 
-    const res = await agent
-      .post("/api/v1/auth/2fa/disable")
-      .send({ password: PASSWORD });
+    const res = await agent.post("/api/v1/auth/2fa/disable").send({ password: PASSWORD });
     expect(res.status).toBe(200);
     expect(fakePrisma.tables.user[0]!.totpEnabled).toBe(false);
     expect(fakePrisma.tables.twoFactorRecoveryCode).toHaveLength(0);

@@ -284,7 +284,10 @@ describe("callback in link mode", () => {
     const res = await request(app)
       .get("/api/v1/auth/oauth/google/callback")
       .query({ code: "auth-code", state: "st-1" })
-      .set("Cookie", cookieHeader(callbackCookies({ gh_oauth_mode: "link", gh_session: "sess-1" })));
+      .set(
+        "Cookie",
+        cookieHeader(callbackCookies({ gh_oauth_mode: "link", gh_session: "sess-1" })),
+      );
 
     expect(res.status).toBe(302);
     expect(res.headers.location).toBe(`${env.APP_URL}/settings?linked=google`);
@@ -310,7 +313,10 @@ describe("callback in link mode", () => {
     const res = await request(app)
       .get("/api/v1/auth/oauth/google/callback")
       .query({ code: "auth-code", state: "st-1" })
-      .set("Cookie", cookieHeader(callbackCookies({ gh_oauth_mode: "link", gh_session: "sess-1" })));
+      .set(
+        "Cookie",
+        cookieHeader(callbackCookies({ gh_oauth_mode: "link", gh_session: "sess-1" })),
+      );
 
     expect(String(res.headers.location)).toContain("settings?error=identity_taken");
     expect(fakePrisma.tables.authIdentity[0]!.userId).toBe("u2");

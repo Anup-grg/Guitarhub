@@ -24,8 +24,7 @@ export type ExtractedMeta = {
 };
 
 export type ValidationResult =
-  | { ok: true; extracted: ExtractedMeta }
-  | { ok: false; code: string; message: string };
+  { ok: true; extracted: ExtractedMeta } | { ok: false; code: string; message: string };
 
 const fail = (code: string, message: string): ValidationResult => ({ ok: false, code, message });
 const pass = (extracted: ExtractedMeta = {}): ValidationResult => ({ ok: true, extracted });
@@ -136,9 +135,10 @@ function deepJsonCheck(bytes: Buffer): ValidationResult {
     string,
     unknown
   >;
-  const dataMeta = (typeof data.meta === "object" && data.meta !== null
-    ? data.meta
-    : {}) as Record<string, unknown>;
+  const dataMeta = (typeof data.meta === "object" && data.meta !== null ? data.meta : {}) as Record<
+    string,
+    unknown
+  >;
 
   return pass({
     title: pickString(data.name, data.title, meta.name, obj.name),
@@ -161,7 +161,10 @@ function sysexCheck(bytes: Buffer, brand: string): ValidationResult {
     return fail("FILE_MAGIC_MISMATCH", "SysEx files must start with the 0xF0 status byte");
   }
   let end = bytes.length - 1;
-  while (end > 0 && (bytes[end] === 0x00 || bytes[end] === 0x0a || bytes[end] === 0x0d || bytes[end] === 0x20)) {
+  while (
+    end > 0 &&
+    (bytes[end] === 0x00 || bytes[end] === 0x0a || bytes[end] === 0x0d || bytes[end] === 0x20)
+  ) {
     end -= 1;
   }
   if (bytes[end] !== 0xf7) {
@@ -200,7 +203,11 @@ function fixedBinaryCheck(bytes: Buffer): ValidationResult {
 }
 
 function wavCheck(bytes: Buffer): ValidationResult {
-  if (bytes.length < 12 || bytes.toString("latin1", 0, 4) !== "RIFF" || bytes.toString("latin1", 8, 12) !== "WAVE") {
+  if (
+    bytes.length < 12 ||
+    bytes.toString("latin1", 0, 4) !== "RIFF" ||
+    bytes.toString("latin1", 8, 12) !== "WAVE"
+  ) {
     return fail("FILE_MAGIC_MISMATCH", "Companion IR files must be RIFF/WAVE audio (.wav)");
   }
   return pass();
@@ -282,8 +289,7 @@ export function validatePresetFile(
 export const CLOUD_LINK_HOSTS = ["cloud.neuraldsp.com"];
 
 export type CloudLinkResult =
-  | { ok: true; url: string }
-  | { ok: false; code: string; message: string };
+  { ok: true; url: string } | { ok: false; code: string; message: string };
 
 /**
  * FR-2.7: exact-host URL validation for Cortex Cloud links.
@@ -297,13 +303,25 @@ export function validateCloudLink(raw: string): CloudLinkResult {
     return { ok: false, code: "CLOUD_URL_INVALID", message: "That is not a valid URL" };
   }
   if (url.protocol !== "https:") {
-    return { ok: false, code: "CLOUD_URL_INVALID", message: "Cortex Cloud links must use https://" };
+    return {
+      ok: false,
+      code: "CLOUD_URL_INVALID",
+      message: "Cortex Cloud links must use https://",
+    };
   }
   if (url.username || url.password) {
-    return { ok: false, code: "CLOUD_URL_INVALID", message: "Cortex Cloud links cannot contain credentials" };
+    return {
+      ok: false,
+      code: "CLOUD_URL_INVALID",
+      message: "Cortex Cloud links cannot contain credentials",
+    };
   }
   if (url.port && url.port !== "443") {
-    return { ok: false, code: "CLOUD_URL_INVALID", message: "Cortex Cloud links cannot specify a port" };
+    return {
+      ok: false,
+      code: "CLOUD_URL_INVALID",
+      message: "Cortex Cloud links cannot specify a port",
+    };
   }
   if (!CLOUD_LINK_HOSTS.includes(url.hostname)) {
     return {

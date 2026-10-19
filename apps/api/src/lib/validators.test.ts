@@ -105,7 +105,11 @@ describe("validatePresetFile — DEEP_JSON", () => {
   it("rejects JSON nested beyond 64 levels before parsing", () => {
     let deep = '{"leaf":true}';
     for (let i = 0; i < 70; i++) deep = `{"n":${deep}}`;
-    const result = validatePresetFile(line6, { filename: "deep.hlx", role: "primary" }, Buffer.from(deep));
+    const result = validatePresetFile(
+      line6,
+      { filename: "deep.hlx", role: "primary" },
+      Buffer.from(deep),
+    );
     expect(result).toMatchObject({ ok: false, code: "FILE_JSON_TOO_DEEP" });
   });
 });
@@ -115,20 +119,20 @@ describe("validatePresetFile — SYSEX", () => {
   const zoomBytes = Buffer.from([0xf0, 0x52, 0x00, 0x10, 0x00, 0x01, 0x02, 0xf7]);
 
   it("accepts Fractal manufacturer magic", () => {
-    expect(validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, fractalBytes).ok).toBe(true);
+    expect(
+      validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, fractalBytes).ok,
+    ).toBe(true);
   });
 
   it("accepts Zoom manufacturer magic for Zoom pedals", () => {
     const zoom: PedalSpec = { ...fractal, brand: "Zoom" };
-    expect(validatePresetFile(zoom, { filename: "patch.syx", role: "primary" }, zoomBytes).ok).toBe(true);
+    expect(validatePresetFile(zoom, { filename: "patch.syx", role: "primary" }, zoomBytes).ok).toBe(
+      true,
+    );
   });
 
   it("rejects wrong manufacturer for the pedal brand", () => {
-    const result = validatePresetFile(
-      fractal,
-      { filename: "amp.syx", role: "primary" },
-      zoomBytes,
-    );
+    const result = validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, zoomBytes);
     expect(result).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
   });
 
@@ -141,14 +145,13 @@ describe("validatePresetFile — SYSEX", () => {
 });
 
 describe("validatePresetFile — FIXED_BINARY (Valeton)", () => {
-  const good = Buffer.concat([
-    Buffer.from("TSRP2-PG", "latin1"),
-    Buffer.alloc(1224 - 8, 0x11),
-  ]);
+  const good = Buffer.concat([Buffer.from("TSRP2-PG", "latin1"), Buffer.alloc(1224 - 8, 0x11)]);
 
   it("accepts exactly 1224 bytes with TSRP + 2-PG header", () => {
     expect(good.length).toBe(1224);
-    expect(validatePresetFile(valeton, { filename: "gp.prst", role: "primary" }, good).ok).toBe(true);
+    expect(validatePresetFile(valeton, { filename: "gp.prst", role: "primary" }, good).ok).toBe(
+      true,
+    );
   });
 
   it("rejects the wrong size", () => {
@@ -168,22 +171,38 @@ describe("validatePresetFile — FIXED_BINARY (Valeton)", () => {
 describe("validatePresetFile — SHALLOW and shared checks", () => {
   it("accepts arbitrary binary content for shallow pedals", () => {
     expect(
-      validatePresetFile(flamma, { filename: "tone.pfl", role: "primary" }, Buffer.from("anything123")),
+      validatePresetFile(
+        flamma,
+        { filename: "tone.pfl", role: "primary" },
+        Buffer.from("anything123"),
+      ),
     ).toMatchObject({ ok: true });
   });
 
   it("rejects extensions outside the pedal allowlist", () => {
     expect(
-      validatePresetFile(flamma, { filename: "evil.exe", role: "primary" }, Buffer.from("anything123")),
+      validatePresetFile(
+        flamma,
+        { filename: "evil.exe", role: "primary" },
+        Buffer.from("anything123"),
+      ),
     ).toMatchObject({ ok: false, code: "FILE_EXTENSION_NOT_ALLOWED" });
   });
 
   it("rejects executables and archives masquerading as presets", () => {
     expect(
-      validatePresetFile(flamma, { filename: "tone.pfl", role: "primary" }, Buffer.from("%PDF-1.7 blah")),
+      validatePresetFile(
+        flamma,
+        { filename: "tone.pfl", role: "primary" },
+        Buffer.from("%PDF-1.7 blah"),
+      ),
     ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
     expect(
-      validatePresetFile(flamma, { filename: "tone.pfl", role: "primary" }, Buffer.from([0x50, 0x4b, 0x03, 0x04, 0, 0])),
+      validatePresetFile(
+        flamma,
+        { filename: "tone.pfl", role: "primary" },
+        Buffer.from([0x50, 0x4b, 0x03, 0x04, 0, 0]),
+      ),
     ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
   });
 
@@ -219,7 +238,11 @@ describe("validatePresetFile — companion IRs", () => {
 
   it("rejects wav files without RIFF/WAVE headers", () => {
     expect(
-      validatePresetFile(line6, { filename: "cab.wav", role: "ir" }, Buffer.from("not audio at all")),
+      validatePresetFile(
+        line6,
+        { filename: "cab.wav", role: "ir" },
+        Buffer.from("not audio at all"),
+      ),
     ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
   });
 });
@@ -240,5 +263,110 @@ describe("validateCloudLink (FR-2.7)", () => {
     ["not a url", "CLOUD_URL_INVALID"],
   ])("rejects %s", (url, code) => {
     expect(validateCloudLink(url)).toMatchObject({ ok: false, code });
+  });
+});
+
+describe("validatePresetFile — remaining branches", () => {
+  const fractalBytes = Buffer.from([0xf0, 0x00, 0x01, 0x74, 0x01, 0x02, 0x03, 0xf7]);
+  const zoomBytes = Buffer.from([0xf0, 0x52, 0x00, 0x10, 0x00, 0x01, 0x02, 0xf7]);
+
+  it("rejects a filename with no extension", () => {
+    expect(
+      validatePresetFile(line6, { filename: "preset", role: "primary" }, Buffer.from("x")),
+    ).toMatchObject({ ok: false, code: "FILE_EXTENSION_NOT_ALLOWED" });
+  });
+
+  it("returns no extracted metadata when the preset has none", () => {
+    const result = validatePresetFile(
+      line6,
+      { filename: "bare.hlx", role: "primary" },
+      Buffer.from(JSON.stringify({ schema: "L6Preset", data: {}, meta: {} })),
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.extracted.title).toBeUndefined();
+      expect(result.extracted.device).toBeUndefined();
+      expect(result.extracted.firmwareVersion).toBeUndefined();
+    }
+  });
+
+  it("rejects top-level JSON that is not an object", () => {
+    for (const text of ["[1,2,3]", '"just a string"', "null", "42"]) {
+      expect(
+        validatePresetFile(line6, { filename: "arr.hlx", role: "primary" }, Buffer.from(text)),
+      ).toMatchObject({ ok: false, code: "FILE_JSON_INVALID" });
+    }
+  });
+
+  it("rejects sysex files that are too short or do not start with F0", () => {
+    expect(
+      validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, Buffer.from([0xf0])),
+    ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
+
+    const noStart = Buffer.from([0xf7, 0x00, 0x01, 0x74, 0x01, 0x02, 0x03, 0xf7]);
+    expect(
+      validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, noStart),
+    ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
+  });
+
+  it("tolerates trailing whitespace after the sysex terminator", () => {
+    const padded = Buffer.from([0xf0, 0x00, 0x01, 0x74, 0x01, 0x02, 0x03, 0xf7, 0x0a, 0x0d]);
+    expect(validatePresetFile(fractal, { filename: "amp.syx", role: "primary" }, padded).ok).toBe(
+      true,
+    );
+  });
+
+  it("rejects the wrong manufacturer for Zoom pedals", () => {
+    const zoom: PedalSpec = { ...fractal, brand: "Zoom" };
+    expect(
+      validatePresetFile(zoom, { filename: "patch.syx", role: "primary" }, fractalBytes),
+    ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
+  });
+
+  it("rejects a Valeton preset whose header targets another device", () => {
+    const wrongDevice = Buffer.concat([
+      Buffer.from("TSRP1-PG", "latin1"),
+      Buffer.alloc(1224 - 8, 0x11),
+    ]);
+    expect(
+      validatePresetFile(valeton, { filename: "gp.prst", role: "primary" }, wrongDevice),
+    ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
+  });
+
+  it("accepts any payload for an unknown validation mode", () => {
+    const unknown: PedalSpec = { ...line6, validationMode: "SOMETHING_NEW", extensions: ["unk"] };
+    expect(
+      validatePresetFile(unknown, { filename: "x.unk", role: "primary" }, Buffer.from("{}")),
+    ).toMatchObject({ ok: true });
+  });
+
+  it("enforces companion size and emptiness caps", () => {
+    const empty = validatePresetFile(line6, { filename: "cab.wav", role: "ir" }, Buffer.alloc(0));
+    expect(empty).toMatchObject({ ok: false, code: "FILE_EMPTY" });
+
+    const huge = Buffer.alloc(5 * 1024 * 1024 + 1, 0);
+    expect(validatePresetFile(line6, { filename: "cab.wav", role: "ir" }, huge)).toMatchObject({
+      ok: false,
+      code: "FILE_SIZE_EXCEEDED",
+    });
+  });
+
+  it("validates companion sysex and .hir files", () => {
+    expect(validatePresetFile(fractal, { filename: "ir.syx", role: "ir" }, fractalBytes).ok).toBe(
+      true,
+    );
+
+    expect(validatePresetFile(fractal, { filename: "ir.syx", role: "ir" }, zoomBytes).ok).toBe(
+      false,
+    );
+
+    expect(
+      validatePresetFile(line6, { filename: "response.hir", role: "ir" }, Buffer.from("plain data"))
+        .ok,
+    ).toBe(true);
+
+    expect(
+      validatePresetFile(line6, { filename: "response.hir", role: "ir" }, Buffer.from("%PDF-1.7")),
+    ).toMatchObject({ ok: false, code: "FILE_MAGIC_MISMATCH" });
   });
 });

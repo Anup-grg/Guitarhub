@@ -6,11 +6,7 @@ import { ApiError } from "../errors/problem.js";
 import { audit, clientIp } from "../lib/audit.js";
 import { burnPasswordTime, hashPassword, verifyPassword } from "../lib/password.js";
 import { checkRate, rateLimited, type RateLimitRule } from "../lib/rate-limit.js";
-import {
-  consumeToken,
-  sendPasswordResetEmail,
-  sendVerificationEmail,
-} from "../lib/mail-tokens.js";
+import { consumeToken, sendPasswordResetEmail, sendVerificationEmail } from "../lib/mail-tokens.js";
 import {
   createSession,
   clearAuthCookies,
@@ -32,11 +28,13 @@ import {
 } from "../lib/totp.js";
 import { displayNameSchema, emailSchema, passwordSchema, tosSchema } from "../lib/schemas.js";
 import { ensureStepUp, requireAuthed, requireUser } from "../middleware/auth.js";
-import { selfUser } from "../lib/users.js";
+import { isHardBanned, selfUser } from "../lib/users.js";
 
 export const authRouter = Router();
 
 const LOGIN_RULE: RateLimitRule = { windowMs: 15 * 60 * 1000, max: 10 };
+// Per-source cap that backs up the per-account limit — blocks credential stuffing across many accounts.
+const LOGIN_IP_RULE: RateLimitRule = { windowMs: 15 * 60 * 1000, max: 50 };
 const REGISTER_RULE: RateLimitRule = { windowMs: 60 * 60 * 1000, max: 5 };
 const RESET_RULE: RateLimitRule = { windowMs: 15 * 60 * 1000, max: 5 };
 const TOKEN_RULE: RateLimitRule = { windowMs: 15 * 60 * 1000, max: 10 };
@@ -110,6 +108,7 @@ const loginSchema = z.object({
 
 authRouter.post("/login", async (req, res) => {
   const body = await loginSchema.parseAsync(req.body);
+  limited(LOGIN_IP_RULE, `login-ip:${clientIp(req)}`);
   limited(LOGIN_RULE, `login:${clientIp(req)}|${body.email}`);
 
   const user = await prisma.user.findUnique({ where: { email: body.email } });
@@ -138,7 +137,7 @@ authRouter.post("/login", async (req, res) => {
     throw new ApiError(401, "INVALID_CREDENTIALS", "Email or password is incorrect");
   }
 
-  if (user.bannedAt) {
+  if (isHardBanned(user)) {
     throw new ApiError(403, "ACCOUNT_BANNED", "This account is suspended");
   }
 
@@ -237,7 +236,7 @@ authRouter.post("/refresh", async (req, res) => {
 
   const user = await prisma.user.findUnique({ where: { id: session!.userId } });
   if (!user || user.deletedAt) invalid("SESSION_EXPIRED", "Sign in again");
-  if (user!.bannedAt) invalid("ACCOUNT_BANNED", "This account is suspended");
+  if (isHardBanned(user!)) invalid("ACCOUNT_BANNED", "This account is suspended");
 
   const nextToken = await rotateSession(session!);
   setSessionCookies(res, session!, nextToken, true);
@@ -309,8 +308,7 @@ authRouter.post("/password/change", requireUser, async (req, res) => {
     })
     .parseAsync(req.body);
 
-  const ok =
-    user.passwordHash && (await verifyPassword(user.passwordHash, body.currentPassword));
+  const ok = user.passwordHash && (await verifyPassword(user.passwordHash, body.currentPassword));
   if (!ok) {
     await audit({
       actorId: user.id,
@@ -338,17 +336,24 @@ authRouter.post("/password/change", requireUser, async (req, res) => {
 
 authRouter.post("/verify-email", async (req, res) => {
   limited(TOKEN_RULE, `verify:${clientIp(req)}`);
-  const body = await z
-    .object({ token: z.string().min(10).max(200) })
-    .parseAsync(req.body);
+  const body = await z.object({ token: z.string().min(10).max(200) }).parseAsync(req.body);
 
   const consumed = await consumeToken(body.token, "EMAIL_VERIFY");
   if (!consumed) {
-    throw new ApiError(400, "INVALID_OR_EXPIRED_TOKEN", "This verification link is invalid or expired");
+    throw new ApiError(
+      400,
+      "INVALID_OR_EXPIRED_TOKEN",
+      "This verification link is invalid or expired",
+    );
   }
 
   const user = await prisma.user.findUnique({ where: { id: consumed.userId } });
-  if (!user) throw new ApiError(400, "INVALID_OR_EXPIRED_TOKEN", "This verification link is invalid or expired");
+  if (!user)
+    throw new ApiError(
+      400,
+      "INVALID_OR_EXPIRED_TOKEN",
+      "This verification link is invalid or expired",
+    );
 
   const now = new Date();
   const updated = await prisma.user.update({
@@ -383,7 +388,11 @@ authRouter.post("/2fa/setup", requireUser, async (req, res) => {
   limited(TWO_FACTOR_RULE, `2fa-setup:${user.id}`);
 
   if (user.totpEnabled) {
-    throw new ApiError(409, "TWO_FACTOR_ALREADY_ENABLED", "Two-factor authentication is already on");
+    throw new ApiError(
+      409,
+      "TWO_FACTOR_ALREADY_ENABLED",
+      "Two-factor authentication is already on",
+    );
   }
   const secret = createTotpSecret();
   await prisma.user.update({
@@ -487,5 +496,3 @@ function deviceLabel(userAgent: string | undefined): string | null {
   const label = parts.filter(Boolean).join(" / ");
   return label.slice(0, 80) || null;
 }
-
-

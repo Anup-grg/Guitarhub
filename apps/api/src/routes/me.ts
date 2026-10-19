@@ -6,11 +6,7 @@ import { newId } from "../lib/id.js";
 import { ApiError } from "../errors/problem.js";
 import { audit, clientIp } from "../lib/audit.js";
 import { sendVerificationEmail } from "../lib/mail-tokens.js";
-import {
-  clearAuthCookies,
-  revokeAllSessions,
-  revokeSession,
-} from "../lib/session.js";
+import { clearAuthCookies, revokeAllSessions, revokeSession } from "../lib/session.js";
 import { bioSchema, displayNameSchema, emailSchema, linksSchema } from "../lib/schemas.js";
 import { ensureStepUp, requireAuthed, requireUser } from "../middleware/auth.js";
 import { selfUser } from "../lib/users.js";
@@ -32,8 +28,16 @@ const patchSchema = z.object({
     .string()
     .trim()
     .max(500)
-    .url("Avatar must be a valid URL")
-    .refine((u) => /^https?:\/\//i.test(u), "Avatar must be an http(s) URL")
+    .refine((u) => {
+      if (u === "") return true;
+      if (!/^https?:\/\//i.test(u)) return false;
+      try {
+        new URL(u);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Avatar must be an http(s) URL")
     .optional()
     .nullable(),
   links: linksSchema,
@@ -81,7 +85,9 @@ meRouter.patch("/", async (req, res) => {
   }
 
   if (body.gear !== undefined) {
-    const pedalIds = [...new Set(body.gear.map((g) => g.pedalId))];
+    const gearByPedal = new Map<string, (typeof body.gear)[number]>();
+    for (const item of body.gear) gearByPedal.set(item.pedalId, item);
+    const pedalIds = [...gearByPedal.keys()];
     const pedals = await prisma.pedal.findMany({
       where: { id: { in: pedalIds }, enabled: true },
       select: { id: true },
@@ -92,7 +98,7 @@ meRouter.patch("/", async (req, res) => {
     await prisma.$transaction([
       prisma.userGear.deleteMany({ where: { userId: user.id } }),
       prisma.userGear.createMany({
-        data: body.gear.map((g) => ({
+        data: [...gearByPedal.values()].map((g) => ({
           id: newId(),
           userId: user.id,
           pedalId: g.pedalId,

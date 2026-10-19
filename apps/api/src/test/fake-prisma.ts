@@ -157,7 +157,9 @@ function matchesOperator(value: unknown, op: string, expected: unknown): boolean
     case "lte":
       return value instanceof Date && expected instanceof Date && value <= expected;
     case "startsWith":
-      return typeof value === "string" && typeof expected === "string" && value.startsWith(expected);
+      return (
+        typeof value === "string" && typeof expected === "string" && value.startsWith(expected)
+      );
     case "endsWith":
       return typeof value === "string" && typeof expected === "string" && value.endsWith(expected);
     case "contains":
@@ -177,11 +179,13 @@ function matchWhere(row: Row, where: Row | undefined): boolean {
   if (!where) return true;
   for (const [key, cond] of Object.entries(where)) {
     if (key === "OR") {
-      if (!cond || !Array.isArray(cond) || !cond.some((w) => matchWhere(row, w as Row))) return false;
+      if (!cond || !Array.isArray(cond) || !cond.some((w) => matchWhere(row, w as Row)))
+        return false;
       continue;
     }
     if (key === "AND") {
-      if (!cond || !Array.isArray(cond) || !cond.every((w) => matchWhere(row, w as Row))) return false;
+      if (!cond || !Array.isArray(cond) || !cond.every((w) => matchWhere(row, w as Row)))
+        return false;
       continue;
     }
     if (key === "NOT") {
@@ -341,7 +345,9 @@ function applyData(row: Row, data: Row): void {
 function modelClient(model: Model) {
   const find = (args: Args, ordered: boolean): Row | null => {
     const rows = tables[model].filter((row) => matches(row, args?.where as Row | undefined));
-    const first = ordered ? (sortRows(rows, args?.orderBy as Row | undefined)[0] ?? null) : (rows[0] ?? null);
+    const first = ordered
+      ? (sortRows(rows, args?.orderBy as Row | undefined)[0] ?? null)
+      : (rows[0] ?? null);
     if (!first) return null;
     return applySelect(
       attachInclude(model, first, args?.include as Row | undefined),
@@ -366,7 +372,9 @@ function modelClient(model: Model) {
         return take !== undefined ? out.slice(0, take) : out;
       }),
     count: (args?: Args) =>
-      lazy(() => tables[model].filter((row) => matches(row, args?.where as Row | undefined)).length),
+      lazy(
+        () => tables[model].filter((row) => matches(row, args?.where as Row | undefined)).length,
+      ),
     create: (args: { data: Row }) =>
       lazy(() => {
         const row = DEFAULTS[model](args.data, new Date());

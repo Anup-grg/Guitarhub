@@ -127,7 +127,10 @@ describe("exchangeCode", () => {
   });
 
   it("fails on a non-2xx response", async () => {
-    vi.stubGlobal("fetch", vi.fn(async (..._args: FetchArgs) => ({ ok: false, json: async () => ({}) })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (..._args: FetchArgs) => ({ ok: false, json: async () => ({}) })),
+    );
 
     await expect(exchangeCode("google", { code: "c", verifier: "v" })).rejects.toMatchObject({
       status: 400,
@@ -136,7 +139,10 @@ describe("exchangeCode", () => {
   });
 
   it("fails when the token is missing from the body", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => ({ error: "bad" }) })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, json: async () => ({ error: "bad" }) })),
+    );
 
     await expect(exchangeCode("google", { code: "c", verifier: "v" })).rejects.toBeInstanceOf(
       ApiError,
@@ -220,7 +226,10 @@ describe("fetchProfile", () => {
   });
 
   it("fails when the provider rejects the profile request", async () => {
-    vi.stubGlobal("fetch", vi.fn(async (..._args: FetchArgs) => ({ ok: false, json: async () => ({}) })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (..._args: FetchArgs) => ({ ok: false, json: async () => ({}) })),
+    );
 
     await expect(fetchProfile("google", "tok")).rejects.toMatchObject({
       code: "OAUTH_PROFILE_FAILED",

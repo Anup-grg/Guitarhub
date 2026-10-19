@@ -120,7 +120,9 @@ export function verifyLocalUploadToken(token: string): LocalUploadToken {
   return verifyToken<LocalUploadToken>(
     token,
     (info) =>
-      typeof info.key === "string" && typeof info.exp === "number" && typeof info.maxBytes === "number",
+      typeof info.key === "string" &&
+      typeof info.exp === "number" &&
+      typeof info.maxBytes === "number",
     "UPLOAD_TOKEN_INVALID",
     "UPLOAD_TOKEN_EXPIRED",
   );
@@ -134,7 +136,9 @@ export function verifyLocalDownloadToken(token: string): LocalDownloadToken {
   return verifyToken<LocalDownloadToken>(
     token,
     (info) =>
-      typeof info.key === "string" && typeof info.exp === "number" && typeof info.filename === "string",
+      typeof info.key === "string" &&
+      typeof info.exp === "number" &&
+      typeof info.filename === "string",
     "DOWNLOAD_TOKEN_INVALID",
     "DOWNLOAD_TOKEN_EXPIRED",
   );
@@ -154,7 +158,9 @@ class LocalStorage implements ObjectStorage {
       exp: Math.floor(Date.now() / 1000) + expiresSec,
       maxBytes: opts.maxBytes,
     });
-    const headers: Record<string, string> = { "Content-Type": opts.contentType ?? "application/octet-stream" };
+    const headers: Record<string, string> = {
+      "Content-Type": opts.contentType ?? "application/octet-stream",
+    };
     return {
       url: `${env.APP_URL}/api/v1/storage/local/upload/${token}`,
       headers,
@@ -308,9 +314,7 @@ class S3Storage implements ObjectStorage {
         MetadataDirective: "COPY",
       }) as never,
     );
-    await client.send(
-      new DeleteObjectCommand({ Bucket: this.#bucket, Key: fromKey }) as never,
-    );
+    await client.send(new DeleteObjectCommand({ Bucket: this.#bucket, Key: fromKey }) as never);
   }
 
   async remove(key: string): Promise<void> {

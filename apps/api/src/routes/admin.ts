@@ -32,15 +32,35 @@ const pedalSchema = z.object({
   model: z.string().trim().min(1).max(60),
   aliases: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
   extensions: z
-    .array(z.string().trim().regex(/^\.[A-Za-z0-9]{1,10}$/, "Extensions look like .hlx"))
+    .array(
+      z
+        .string()
+        .trim()
+        .regex(/^\.[A-Za-z0-9]{1,10}$/, "Extensions look like .hlx"),
+    )
     .max(10)
     .default([]),
   firmwareNotes: z.string().trim().max(2000).nullish(),
   importInstructionsMd: z.string().max(10000).default(""),
   validationMode: z.enum(["DEEP_JSON", "SYSEX", "FIXED_BINARY", "SHALLOW", "CLOUD_LINK"]),
-  maxPresetBytes: z.number().int().positive().max(100 * 1024 * 1024).default(1048576),
-  maxBundleBytes: z.number().int().positive().max(1024 * 1024 * 1024).default(20971520),
-  maxCompanionBytes: z.number().int().positive().max(100 * 1024 * 1024).default(5242880),
+  maxPresetBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(100 * 1024 * 1024)
+    .default(1048576),
+  maxBundleBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(1024 * 1024 * 1024)
+    .default(20971520),
+  maxCompanionBytes: z
+    .number()
+    .int()
+    .positive()
+    .max(100 * 1024 * 1024)
+    .default(5242880),
   enabled: z.boolean().default(true),
 });
 
@@ -173,12 +193,7 @@ async function buildReportRows(rows: Record<string, unknown>[]) {
     : [];
   const commentById = new Map(comments.map((c) => [String(c.id), c]));
 
-  const allPresetIds = [
-    ...new Set([
-      ...presetIds,
-      ...comments.map((c) => String(c.presetId)),
-    ]),
-  ];
+  const allPresetIds = [...new Set([...presetIds, ...comments.map((c) => String(c.presetId))])];
   const presets = allPresetIds.length
     ? await prisma.preset.findMany({ where: { id: { in: allPresetIds } } })
     : [];
@@ -191,7 +206,9 @@ async function buildReportRows(rows: Record<string, unknown>[]) {
       ...comments.map((c) => String(c.userId)),
     ]),
   ];
-  const users = userIds.length ? await prisma.user.findMany({ where: { id: { in: userIds } } }) : [];
+  const users = userIds.length
+    ? await prisma.user.findMany({ where: { id: { in: userIds } } })
+    : [];
   const userById = new Map(users.map((u) => [String(u.id), u]));
 
   const owner = (id: string | null | undefined) => {
@@ -289,7 +306,8 @@ adminRouter.post("/reports/:id/resolve", async (req, res) => {
   if (body.action !== "dismiss") {
     if (report.targetType === "PRESET") {
       const preset = await prisma.preset.findUnique({ where: { id: String(report.targetId) } });
-      if (!preset) throw new ApiError(404, "REPORT_TARGET_NOT_FOUND", "The reported preset no longer exists");
+      if (!preset)
+        throw new ApiError(404, "REPORT_TARGET_NOT_FOUND", "The reported preset no longer exists");
       if (body.action === "hide") {
         await prisma.preset.update({
           where: { id: preset.id },
@@ -300,7 +318,8 @@ adminRouter.post("/reports/:id/resolve", async (req, res) => {
       }
     } else {
       const comment = await prisma.comment.findUnique({ where: { id: String(report.targetId) } });
-      if (!comment) throw new ApiError(404, "REPORT_TARGET_NOT_FOUND", "The reported comment no longer exists");
+      if (!comment)
+        throw new ApiError(404, "REPORT_TARGET_NOT_FOUND", "The reported comment no longer exists");
       if (body.action === "hide") {
         await prisma.comment.update({ where: { id: comment.id }, data: { deletedAt: now } });
       } else {
@@ -351,9 +370,12 @@ adminRouter.post("/users/:id/ban", async (req, res) => {
 
   const target = await prisma.user.findUnique({ where: { id } });
   if (!target) throw new ApiError(404, "USER_NOT_FOUND", "No such user");
-  if (id === user.id) throw new ApiError(400, "CANNOT_BAN_SELF", "Administrators cannot ban themselves");
-  if (target.role === "ADMIN") throw new ApiError(403, "CANNOT_BAN_ADMIN", "Administrator accounts are protected");
-  if (target.bannedAt) throw new ApiError(409, "USER_ALREADY_BANNED", "This user is already banned");
+  if (id === user.id)
+    throw new ApiError(400, "CANNOT_BAN_SELF", "Administrators cannot ban themselves");
+  if (target.role === "ADMIN")
+    throw new ApiError(403, "CANNOT_BAN_ADMIN", "Administrator accounts are protected");
+  if (target.bannedAt)
+    throw new ApiError(409, "USER_ALREADY_BANNED", "This user is already banned");
 
   const now = new Date();
   const banType = body.type === "hard" ? "HARD" : "SHADOW";
@@ -382,7 +404,9 @@ adminRouter.post("/users/:id/ban", async (req, res) => {
     ip: clientIp(req),
   });
 
-  res.json({ user: { id, banned: true, banType: String(banType).toLowerCase(), banReason: body.reason } });
+  res.json({
+    user: { id, banned: true, banType: String(banType).toLowerCase(), banReason: body.reason },
+  });
 });
 
 adminRouter.post("/users/:id/unban", async (req, res) => {
@@ -487,13 +511,20 @@ adminRouter.get("/stats", async (_req, res) => {
  * ------------------------------------------------------------------ */
 
 const tagCreateSchema = z.object({
-  slug: z.string().trim().regex(/^[a-z0-9-]{1,40}$/, "Slug is lowercase letters, digits and dashes"),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{1,40}$/, "Slug is lowercase letters, digits and dashes"),
   label: z.string().trim().min(1).max(60),
   blacklisted: z.boolean().default(false),
 });
 
 const tagUpdateSchema = z.object({
-  slug: z.string().trim().regex(/^[a-z0-9-]{1,40}$/, "Slug is lowercase letters, digits and dashes").optional(),
+  slug: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{1,40}$/, "Slug is lowercase letters, digits and dashes")
+    .optional(),
   label: z.string().trim().min(1).max(60).optional(),
   blacklisted: z.boolean().optional(),
 });
@@ -521,7 +552,8 @@ adminRouter.post("/tags", async (req, res) => {
       data: { id: newId(), slug: body.slug, label: body.label, blacklisted: body.blacklisted },
     });
   } catch (err) {
-    if (isUniqueError(err)) throw new ApiError(409, "TAG_SLUG_TAKEN", "A tag with that slug already exists");
+    if (isUniqueError(err))
+      throw new ApiError(409, "TAG_SLUG_TAKEN", "A tag with that slug already exists");
     throw err;
   }
   await audit({
@@ -532,7 +564,13 @@ adminRouter.post("/tags", async (req, res) => {
     ip: clientIp(req),
   });
   res.status(201).json({
-    tag: { id: tag.id, slug: tag.slug, label: tag.label, blacklisted: tag.blacklisted, presetCount: 0 },
+    tag: {
+      id: tag.id,
+      slug: tag.slug,
+      label: tag.label,
+      blacklisted: tag.blacklisted,
+      presetCount: 0,
+    },
   });
 });
 
@@ -551,7 +589,8 @@ adminRouter.patch("/tags/:id", async (req, res) => {
   try {
     tag = await prisma.tag.update({ where: { id }, data });
   } catch (err) {
-    if (isUniqueError(err)) throw new ApiError(409, "TAG_SLUG_TAKEN", "A tag with that slug already exists");
+    if (isUniqueError(err))
+      throw new ApiError(409, "TAG_SLUG_TAKEN", "A tag with that slug already exists");
     throw err;
   }
 
@@ -590,7 +629,8 @@ adminRouter.post("/tags/:id/merge", async (req, res) => {
   const sourceId = String(req.params.id);
   const { targetTagId } = await mergeSchema.parseAsync(req.body);
 
-  if (sourceId === targetTagId) throw new ApiError(400, "TAG_MERGE_SELF", "Cannot merge a tag into itself");
+  if (sourceId === targetTagId)
+    throw new ApiError(400, "TAG_MERGE_SELF", "Cannot merge a tag into itself");
 
   const [source, target] = await Promise.all([
     prisma.tag.findUnique({ where: { id: sourceId } }),
@@ -608,7 +648,9 @@ adminRouter.post("/tags/:id/merge", async (req, res) => {
   let moved = 0;
   for (const link of sourceLinks) {
     if (alreadyLinked.has(String(link.presetId))) continue;
-    await prisma.presetTag.create({ data: { presetId: String(link.presetId), tagId: targetTagId } });
+    await prisma.presetTag.create({
+      data: { presetId: String(link.presetId), tagId: targetTagId },
+    });
     moved += 1;
   }
   await prisma.presetTag.deleteMany({ where: { tagId: sourceId } });
@@ -623,6 +665,12 @@ adminRouter.post("/tags/:id/merge", async (req, res) => {
   });
 
   res.json({
-    merged: { sourceId, sourceSlug: source.slug, targetId: targetTagId, targetSlug: target.slug, moved },
+    merged: {
+      sourceId,
+      sourceSlug: source.slug,
+      targetId: targetTagId,
+      targetSlug: target.slug,
+      moved,
+    },
   });
 });

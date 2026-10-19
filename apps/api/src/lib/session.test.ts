@@ -252,7 +252,7 @@ describe("cookies", () => {
 
     env.COOKIE_SECURE = true;
     expect(sessionCookieName()).toBe("__Host-gh_session");
-    expect(refreshCookieName()).toBe("__Host-gh_refresh");
+    expect(refreshCookieName()).toBe("__Secure-gh_refresh");
     env.COOKIE_SECURE = false;
   });
 

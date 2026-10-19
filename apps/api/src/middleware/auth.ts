@@ -1,7 +1,7 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import type { Session, User } from "@prisma/client";
 import { ApiError } from "../errors/problem.js";
-import { checkRate, type RateLimitRule } from "../lib/rate-limit.js";
+import { checkRate, rateLimited, type RateLimitRule } from "../lib/rate-limit.js";
 import { burnPasswordTime, verifyPassword } from "../lib/password.js";
 import { verifyTotp } from "../lib/totp.js";
 import {
@@ -13,8 +13,12 @@ import {
   touchSession,
 } from "../lib/session.js";
 import { env } from "../config.js";
+import { isHardBanned } from "../lib/users.js";
 
 export type AuthContext = { user: User; session: Session };
+
+/** Caps how many times a single account may re-enter credentials for step-up (SRS §6.3). */
+const STEP_UP_RULE: RateLimitRule = { windowMs: 15 * 60 * 1000, max: 10 };
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -40,7 +44,7 @@ export const requireUser: RequestHandler = (req, _res, next) => {
     next(new ApiError(401, "UNAUTHORIZED", "Sign in to continue"));
     return;
   }
-  if (req.auth.user.bannedAt) {
+  if (isHardBanned(req.auth.user)) {
     next(new ApiError(403, "ACCOUNT_BANNED", "This account is suspended"));
     return;
   }
@@ -92,19 +96,28 @@ export async function ensureStepUp(req: Request): Promise<void> {
   if (isStepUpFresh(session)) return;
 
   const body = (req.body ?? {}) as { password?: unknown; totp?: unknown };
+  const password =
+    typeof body.password === "string" && body.password.length > 0 ? body.password : null;
+  const totp = typeof body.totp === "string" && body.totp.length > 0 ? body.totp : null;
 
-  if (typeof body.password === "string" && body.password.length > 0) {
+  // A hijacked session must not allow unlimited password / TOTP guessing.
+  if (password || totp) {
+    const result = checkRate(`stepup:${user.id}`, STEP_UP_RULE);
+    if (!result.allowed) rateLimited(result, "Too many confirmation attempts — try again shortly");
+  }
+
+  if (password) {
     const ok = user.passwordHash
-      ? await verifyPassword(user.passwordHash, body.password)
-      : await burnAndFail(body.password);
+      ? await verifyPassword(user.passwordHash, password)
+      : await burnAndFail(password);
     if (!ok) throw new ApiError(403, "STEP_UP_REQUIRED", "Password re-entered incorrectly");
     await stampStepUp(session.id);
     req.auth = { user, session: { ...session, stepUpAt: new Date() } };
     return;
   }
 
-  if (user.totpEnabled && user.totpSecret && typeof body.totp === "string") {
-    const ok = await verifyTotp(user.totpSecret, body.totp);
+  if (user.totpEnabled && user.totpSecret && totp) {
+    const ok = await verifyTotp(user.totpSecret, totp);
     if (!ok) throw new ApiError(403, "STEP_UP_REQUIRED", "Two-factor code is incorrect");
     await stampStepUp(session.id);
     req.auth = { user, session: { ...session, stepUpAt: new Date() } };

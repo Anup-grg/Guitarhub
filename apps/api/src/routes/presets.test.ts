@@ -78,10 +78,7 @@ async function upload(
   });
   expect(requested.status).toBe(201);
   const path = new URL(requested.body.url).pathname;
-  const put = await agent
-    .put(path)
-    .set("Content-Type", "application/octet-stream")
-    .send(bytes);
+  const put = await agent.put(path).set("Content-Type", "application/octet-stream").send(bytes);
   expect(put.status).toBe(201);
   return requested.body.key as string;
 }
@@ -282,7 +279,9 @@ describe("POST /api/v1/presets (finalize)", () => {
 
     expect(fakePrisma.tables.presetFile).toHaveLength(1);
     expect(fakePrisma.tables.presetTag).toHaveLength(1);
-    expect(fakePrisma.tables.auditLog.find((r) => r.action === "preset.create")).toMatchObject({ action: "preset.create" });
+    expect(fakePrisma.tables.auditLog.find((r) => r.action === "preset.create")).toMatchObject({
+      action: "preset.create",
+    });
   });
 
   it("saves drafts without publishing", async () => {
@@ -291,9 +290,9 @@ describe("POST /api/v1/presets (finalize)", () => {
     const agent = await signIn();
     const key = await upload(agent, "line6-hx-stomp", "crunch.hlx", hlxBytes());
 
-    const res = await agent.post("/api/v1/presets").send(
-      baseMeta({ status: "draft", files: [{ key, role: "primary" }] }),
-    );
+    const res = await agent
+      .post("/api/v1/presets")
+      .send(baseMeta({ status: "draft", files: [{ key, role: "primary" }] }));
     expect(res.status).toBe(201);
     expect(res.body.preset.status).toBe("draft");
     expect(fakePrisma.tables.preset[0]!.status).toBe("DRAFT");
@@ -379,9 +378,7 @@ describe("POST /api/v1/presets (finalize)", () => {
     seedPedal();
     fakePrisma.seed("tag", { id: "tag_crunch", slug: "crunch", label: "Crunch" });
     const agent = await signIn();
-    const res = await agent
-      .post("/api/v1/presets")
-      .send(baseMeta({ licenseAttested: undefined }));
+    const res = await agent.post("/api/v1/presets").send(baseMeta({ licenseAttested: undefined }));
     expect(res.status).toBe(400);
     expect(res.body.code).toBe("VALIDATION_ERROR");
   });
@@ -405,9 +402,9 @@ describe("POST /api/v1/presets (finalize)", () => {
     expect(duplicate.status).toBe(409);
     expect(duplicate.body.code).toBe("DUPLICATE_CONTENT");
 
-    const acked = await agent.post("/api/v1/presets").send(
-      baseMeta({ files: [{ key: key2, role: "primary" }], forkAck: true }),
-    );
+    const acked = await agent
+      .post("/api/v1/presets")
+      .send(baseMeta({ files: [{ key: key2, role: "primary" }], forkAck: true }));
     expect(acked.status).toBe(201);
     expect(fakePrisma.tables.preset).toHaveLength(2);
   });
@@ -552,14 +549,53 @@ describe("POST /api/v1/presets (finalize)", () => {
     expect(res.status).toBe(401);
   });
 
+  it("rejects a files list that attaches the same storage key twice", async () => {
+    seedPedal();
+    fakePrisma.seed("tag", { id: "tag_crunch", slug: "crunch", label: "Crunch" });
+    const agent = await signIn();
+    const key = await upload(agent, "line6-hx-stomp", "crunch.hlx", hlxBytes());
+
+    const res = await agent.post("/api/v1/presets").send(
+      baseMeta({
+        usesThirdPartyIr: true,
+        files: [
+          { key, role: "primary" },
+          { key, role: "ir" },
+        ],
+      }),
+    );
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe("VALIDATION_ERROR");
+    expect(fakePrisma.tables.preset).toHaveLength(0);
+    expect(await getStorage().get(key)).not.toBeNull();
+  });
+
+  it("publishes a bundle preset with the bundle cap and extension", async () => {
+    seedPedal();
+    fakePrisma.seed("tag", { id: "tag_crunch", slug: "crunch", label: "Crunch" });
+    const agent = await signIn();
+    const bytes = Buffer.from("HLS BUNDLE PAYLOAD");
+    const key = await upload(agent, "line6-hx-stomp", "Setlist.hls", bytes);
+
+    const res = await agent
+      .post("/api/v1/presets")
+      .send(baseMeta({ files: [{ key, role: "primary" }] }));
+    expect(res.status).toBe(201);
+    expect(res.body.preset).toMatchObject({
+      kind: "bundle",
+      fileExt: "hls",
+      fileSize: bytes.length,
+    });
+    const row = fakePrisma.tables.preset[0]!;
+    expect(String(row.storageKey)).toContain("primary.hls");
+    expect(await getStorage().get(String(row.storageKey))).not.toBeNull();
+  });
+
   it("attaches companion IR files to the preset", async () => {
     seedPedal();
     fakePrisma.seed("tag", { id: "tag_crunch", slug: "crunch", label: "Crunch" });
     const agent = await signIn();
-    const wav = Buffer.concat([
-      Buffer.from("RIFF    WAVEfmt "),
-      Buffer.alloc(64, 0),
-    ]);
+    const wav = Buffer.concat([Buffer.from("RIFF    WAVEfmt "), Buffer.alloc(64, 0)]);
     const key = await upload(agent, "line6-hx-stomp", "crunch.hlx", hlxBytes());
     const irKey = await upload(agent, "line6-hx-stomp", "greenback.wav", wav, "ir");
 
@@ -673,7 +709,12 @@ describe("GET /api/v1/presets (browse)", () => {
   it("filters by pedal, section, tag, usesIr and verified uploader", async () => {
     const a = seedPublished({ title: "Pedal A" });
     seedPublished({ title: "Pedal B", pedalId: "pedal_helix" });
-    const c = seedPublished({ title: "Sectioned", section: "SONGS", songTitle: "Song", artist: "Artist" });
+    const c = seedPublished({
+      title: "Sectioned",
+      section: "SONGS",
+      songTitle: "Song",
+      artist: "Artist",
+    });
     tagPreset(a.id, "crunch", "Crunch");
     tagPreset(c.id, "crunch", "Crunch");
 
@@ -690,20 +731,27 @@ describe("GET /api/v1/presets (browse)", () => {
 
     const byIr = await request(app).get("/api/v1/presets?usesIr=true");
     expect(byIr.body.total).toBe(0);
-    expect(
-      (await request(app).get("/api/v1/presets?usesIr=true&pedal=nope")).status,
-    ).toBe(404);
+    expect((await request(app).get("/api/v1/presets?usesIr=true&pedal=nope")).status).toBe(404);
 
     const verified = await request(app).get("/api/v1/presets?pedal=line6-hx-stomp&verified=true");
-    expect(verified.body.presets.every((x: { user: { verified: boolean } }) => x.user.verified)).toBe(true);
+    expect(
+      verified.body.presets.every((x: { user: { verified: boolean } }) => x.user.verified),
+    ).toBe(true);
   });
 
   it("searches across title, song, artist, tags and uploader", async () => {
     seedPublished({ title: "Maple Lead", descriptionMd: "smoky sustain" });
     seedPublished({ title: "Ambient Pad", songTitle: "Amazing Grace", artist: "Trad." });
-    const tagged = seedPublished({ title: "Untagged title", createdAt: new Date("2026-03-01T00:00:00Z") });
+    const tagged = seedPublished({
+      title: "Untagged title",
+      createdAt: new Date("2026-03-01T00:00:00Z"),
+    });
     tagPreset(tagged.id, "shoegaze", "Shoegaze");
-    const bob = seedPublished({ title: "From Bob", userId: "user_bob", createdAt: new Date("2026-04-01T00:00:00Z") });
+    const bob = seedPublished({
+      title: "From Bob",
+      userId: "user_bob",
+      createdAt: new Date("2026-04-01T00:00:00Z"),
+    });
 
     const byTitle = await request(app).get("/api/v1/presets?q=maple");
     expect(byTitle.body.total).toBe(1);
@@ -1090,16 +1138,12 @@ describe("GET /api/v1/presets/:id/download", () => {
       ext: "hlx",
     });
     const agent = await signIn();
-    const userId = String(
-      fakePrisma.tables.user[fakePrisma.tables.user.length - 1]!.id,
-    );
+    const userId = String(fakePrisma.tables.user[fakePrisma.tables.user.length - 1]!.id);
 
     expect((await agent.get("/api/v1/presets/preset_rl_key/download")).status).toBe(302);
     expect((await agent.get("/api/v1/presets/preset_rl_key/download")).status).toBe(302);
 
-    const events = fakePrisma.tables.downloadEvent.filter(
-      (e) => e.presetId === "preset_rl_key",
-    );
+    const events = fakePrisma.tables.downloadEvent.filter((e) => e.presetId === "preset_rl_key");
     expect(events).toHaveLength(1);
     expect(events[0]!.clientKey).toBe(`user:${userId}`);
     expect(FakeTable("preset", "preset_rl_key").downloadCount).toBe(2);

@@ -11,6 +11,7 @@ import { ApiError } from "../errors/problem.js";
 import { attachUser, csrfGuard, ensureStepUp, requireAuthed, requireUser } from "./auth.js";
 import { hashPassword } from "../lib/password.js";
 import { createTotpSecret } from "../lib/totp.js";
+import { resetRateLimits } from "../lib/rate-limit.js";
 import { generate } from "otplib";
 import { sessionCookieName } from "../lib/session.js";
 import { fakePrisma } from "../test/fake-prisma.js";
@@ -39,6 +40,7 @@ const res = {} as Response;
 
 beforeEach(() => {
   fakePrisma.reset();
+  resetRateLimits();
 });
 
 describe("csrfGuard (SRS §6.5)", () => {
@@ -56,16 +58,15 @@ describe("csrfGuard (SRS §6.5)", () => {
 
   it("passes requests from the app origin and from our own host", () => {
     const fromApp = nextSpy();
-    csrfGuard(
-      makeReq({ method: "POST", headers: { origin: env.APP_URL } }),
-      res,
-      fromApp,
-    );
+    csrfGuard(makeReq({ method: "POST", headers: { origin: env.APP_URL } }), res, fromApp);
     expect(fromApp.calls).toEqual([[]]);
 
     const fromHost = nextSpy();
     csrfGuard(
-      makeReq({ method: "POST", headers: { origin: "http://localhost:4000", host: "localhost:4000" } }),
+      makeReq({
+        method: "POST",
+        headers: { origin: "http://localhost:4000", host: "localhost:4000" },
+      }),
       res,
       fromHost,
     );
@@ -74,11 +75,7 @@ describe("csrfGuard (SRS §6.5)", () => {
 
   it("rejects state-changing requests from another origin", () => {
     const next = nextSpy();
-    csrfGuard(
-      makeReq({ method: "POST", headers: { origin: "https://evil.example" } }),
-      res,
-      next,
-    );
+    csrfGuard(makeReq({ method: "POST", headers: { origin: "https://evil.example" } }), res, next);
 
     expect(next.calls).toHaveLength(1);
     const err = next.calls[0]![0] as ApiError;
@@ -101,10 +98,27 @@ describe("requireUser / requireAuthed", () => {
 
   it("rejects banned accounts with 403", () => {
     const next = nextSpy();
-    const user = fakePrisma.seed("user", { id: "u1", email: "u1@example.com", bannedAt: new Date() });
+    const user = fakePrisma.seed("user", {
+      id: "u1",
+      email: "u1@example.com",
+      bannedAt: new Date(),
+    });
     requireUser(makeReq({ auth: { user, session: {} } }), res, next);
 
     expect((next.calls[0]![0] as ApiError).code).toBe("ACCOUNT_BANNED");
+  });
+
+  it("lets shadow-banned accounts through so the ban stays invisible (FR-7.2)", () => {
+    const next = nextSpy();
+    const user = fakePrisma.seed("user", {
+      id: "u1",
+      email: "u1@example.com",
+      bannedAt: new Date(),
+      banType: "SHADOW",
+    });
+    requireUser(makeReq({ auth: { user, session: {} } }), res, next);
+
+    expect(next.calls).toEqual([[]]);
   });
 
   it("lets signed-in users through and returns their context", () => {
@@ -242,5 +256,27 @@ describe("ensureStepUp (SRS §6.3)", () => {
     await expect(
       ensureStepUp(reqWith(user, session, { password: "anything-at-all" })),
     ).rejects.toMatchObject({ code: "STEP_UP_REQUIRED" });
+  });
+
+  it("rate limits repeated credential guesses from a stolen session", async () => {
+    const user = await setupUser();
+    const session = fakePrisma.seed("session", { id: "s1", userId: "u1", stepUpAt: null });
+
+    for (let i = 0; i < 10; i++) {
+      await expect(
+        ensureStepUp(reqWith(user, session, { password: "wrong-password" })),
+      ).rejects.toMatchObject({ status: 403, code: "STEP_UP_REQUIRED" });
+    }
+
+    await expect(
+      ensureStepUp(reqWith(user, session, { password: "wrong-password" })),
+    ).rejects.toMatchObject({ status: 429, code: "RATE_LIMITED" });
+  });
+
+  it("does not rate limit a fresh step-up that needs no credentials", async () => {
+    const user = await setupUser();
+    const session = fakePrisma.seed("session", { id: "s1", userId: "u1", stepUpAt: new Date() });
+
+    await expect(ensureStepUp(reqWith(user, session, {}))).resolves.toBeUndefined();
   });
 });

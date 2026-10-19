@@ -19,7 +19,7 @@ export function sessionCookieName(): string {
 }
 
 export function refreshCookieName(): string {
-  return env.COOKIE_SECURE ? "__Host-gh_refresh" : "gh_refresh";
+  return env.COOKIE_SECURE ? "__Secure-gh_refresh" : "gh_refresh";
 }
 
 function baseCookie() {
@@ -89,8 +89,8 @@ export async function touchSession(session: Session): Promise<void> {
 export async function rotateSession(session: Session): Promise<string> {
   const refreshToken = randomToken();
   const now = new Date();
-  const used = [...session.usedHashes, session.refreshTokenHash].filter(
-    (h): h is string => Boolean(h),
+  const used = [...session.usedHashes, session.refreshTokenHash].filter((h): h is string =>
+    Boolean(h),
   );
   await prisma.session.update({
     where: { id: session.id },
