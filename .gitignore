@@ -14,5 +14,6 @@ prisma/*.db
 .local-objects-test-*/
 .vitest/
 *.log
+*.err
 /*-debug.txt
 apps/api/*-debug.txt
