@@ -38,9 +38,9 @@ export function AdCarousel({ ads, autoAdvanceMs = 12000 }: AdCarouselProps) {
   const current = ads[index];
 
   return (
-    <section className="mt-6" aria-label="Advertisement carousel">
+    <section className="mt-12" aria-label="Advertisement carousel">
       <div
-        className="relative overflow-hidden rounded-lg"
+        className="relative overflow-hidden border border-[#1f1f1f]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocus={() => setPaused(true)}
@@ -50,7 +50,7 @@ export function AdCarousel({ ads, autoAdvanceMs = 12000 }: AdCarouselProps) {
           href={current.linkUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative block h-40 sm:h-48 md:h-56 lg:h-64"
+          className="relative block h-40 sm:h-48 md:h-56 lg:h-72"
           aria-label={current.alt || "Advertisement"}
         >
           <Image
@@ -58,7 +58,7 @@ export function AdCarousel({ ads, autoAdvanceMs = 12000 }: AdCarouselProps) {
             alt={current.alt || "Advertisement"}
             fill
             unoptimized
-            sizes="(max-width: 1024px) 100vw, 1024px"
+            sizes="(max-width: 1024px) 100vw, 1152px"
             className="object-cover"
           />
         </a>
@@ -67,10 +67,18 @@ export function AdCarousel({ ads, autoAdvanceMs = 12000 }: AdCarouselProps) {
             <button
               type="button"
               onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded bg-black/40 px-2 py-1 text-white hover:bg-black/60"
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/70 px-3 py-2 text-white hover:bg-red-600 transition-colors"
               aria-label="Previous advertisement"
             >
               ‹
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/70 px-3 py-2 text-white hover:bg-red-600 transition-colors"
+              aria-label="Next advertisement"
+            >
+              ›
             </button>
             <button
               type="button"

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -49,63 +49,65 @@ export default function HomeFeeds() {
   if (state.status === "loading" || state.status === "error") {
     return (
       <p className="mt-8 text-sm text-zinc-500" aria-busy={state.status === "loading"}>
-        {state.status === "loading" ? "Loading feeds…" : "Feeds are unavailable right now."}
+        {state.status === "loading" ? "Loading feedsâ€¦" : "Feeds are unavailable right now."}
       </p>
     );
   }
 
   return (
-    <div className="mt-10 space-y-10">
-      <form
-        className="flex max-w-xl gap-2"
-        action="/presets"
-        onSubmit={(e) => {
-          if (!q.trim()) e.preventDefault();
-        }}
-      >
-        <input
-          aria-label="Search presets"
-          name="q"
-          defaultValue={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search presets — try “clean”, “helix”, or an artist…"
-          className="w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-        />
-        <button
-          type="submit"
-          className="shrink-0 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+    <div className="space-y-16">
+      <div>
+        <form
+          className="flex max-w-2xl mx-auto gap-0 shadow-sm"
+          action="/presets"
+          onSubmit={(e) => {
+            if (!q.trim()) e.preventDefault();
+          }}
         >
-          Search
-        </button>
-      </form>
+          <input
+            aria-label="Search presets"
+            name="q"
+            defaultValue={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search presets by name, pedal, or artist..."
+            className="w-full border border-gray-300 border-r-0 px-6 py-4 text-sm text-black placeholder:text-gray-500 focus:outline-none focus:border-black"
+          />
+          <button
+            type="submit"
+            className="shrink-0 bg-black px-10 py-4 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+          >
+            SEARCH
+          </button>
+        </form>
+      </div>
 
       <section>
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Trending now
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-black uppercase tracking-wide">
+            Trending Now
           </h2>
           <Link
             href="/presets?sort=hot"
-            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            className="text-sm font-medium text-black hover:underline transition-colors"
           >
-            See all →
+            VIEW ALL
           </Link>
         </div>
         {state.status === "ready" ? (
-          <PresetRows presets={state.hot} empty="Nothing trending yet — be the first to share." />
+          <PresetRows presets={state.hot} empty="Nothing trending yet - be the first to share." />
         ) : null}
       </section>
 
       <section>
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Newest presets
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-black uppercase tracking-wide">
+            Newest Presets
           </h2>
           <Link
             href="/presets?sort=new"
-            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            className="text-sm font-medium text-black hover:underline transition-colors"
           >
-            See all →
+            VIEW ALL
           </Link>
         </div>
         {state.status === "ready" ? (
@@ -114,36 +116,38 @@ export default function HomeFeeds() {
       </section>
 
       <section>
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Pedals
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold text-black uppercase tracking-wide">
+            Browse by Pedal
           </h2>
           <Link
             href="/pedals"
-            className="text-sm text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+            className="text-sm font-medium text-black hover:underline transition-colors"
           >
-            Full catalog →
+            FULL CATALOG
           </Link>
         </div>
-        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {state.status === "ready"
             ? state.pedals.map((p) => (
-                <li key={p.slug}>
-                  <Link
-                    href={`/pedals/${p.slug}`}
-                    className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm transition hover:border-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-600"
-                  >
-                    <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                      {p.brand} {p.model}
-                    </span>
-                    <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
-                      {p.presetCount} preset{p.presetCount === 1 ? "" : "s"}
-                    </span>
-                  </Link>
-                </li>
+                <Link
+                  key={p.slug}
+                  href={`/pedals/${p.slug}`}
+                  className="group border border-gray-200 p-6 text-center transition-all hover:border-black hover:shadow-sm"
+                >
+                  <div className="font-semibold text-black group-hover:text-gray-700">
+                    {p.brand}
+                  </div>
+                  <div className="text-gray-600 text-sm mt-1">
+                    {p.model}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    {p.presetCount} {p.presetCount === 1 ? "PRESET" : "PRESETS"}
+                  </div>
+                </Link>
               ))
             : null}
-        </ul>
+        </div>
       </section>
     </div>
   );
@@ -152,26 +156,32 @@ export default function HomeFeeds() {
 function PresetRows({ presets, empty }: { presets: PresetItem[]; empty: string }) {
   if (presets.length === 0) {
     return (
-      <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400" data-testid="feed-empty">
+      <p className="text-sm text-gray-500" data-testid="feed-empty">
         {empty}
       </p>
     );
   }
   return (
-    <ul className="mt-3 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-      {presets.map((preset) => (
-        <li key={preset.id}>
-          <Link
-            href={`/presets/${preset.id}`}
-            className="flex items-baseline justify-between gap-4 px-4 py-3 transition hover:bg-zinc-50 dark:hover:bg-zinc-900"
-          >
-            <span className="font-medium text-zinc-900 dark:text-zinc-50">{preset.title}</span>
-            <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
-              {preset.pedal.brand} {preset.pedal.model} · ▲ {preset.counts.score}
-            </span>
-          </Link>
-        </li>
+    <div className="border border-gray-200">
+      {presets.map((preset, index) => (
+        <Link
+          key={preset.id}
+          href={`/presets/${preset.id}`}
+          className={`flex items-center justify-between gap-4 px-6 py-4 transition hover:bg-gray-50 ${
+            index !== presets.length - 1 ? "border-b border-gray-200" : ""
+          }`}
+        >
+          <div>
+            <div className="font-medium text-black">{preset.title}</div>
+            <div className="text-sm text-gray-600 mt-1">
+              {preset.pedal.brand} {preset.pedal.model}
+            </div>
+          </div>
+          <div className="text-sm text-gray-500">
+            {preset.counts.score} {preset.counts.score === 1 ? "upvote" : "upvotes"}
+          </div>
+        </Link>
       ))}
-    </ul>
+    </div>
   );
 }
